@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    font-family: 'Noto Sans Lao', sans-serif;
+}
+
+.card-header {
+    height: 125px;
+}
+
+.showcard {
+    height: 500px;
+    background: #000;
+}
