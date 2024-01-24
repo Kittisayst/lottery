@@ -11,5 +11,5 @@ if ($result) {
         echo "<option value=" . $row['pid'] .">" . $row['pname'] . "</option>";
     }
 } else {
-    echo "<option value='0' selected>---ແຂວງທັງໝົດ2---</option>";
+    echo "<option value='0' selected>---ແຂວງທັງໝົດ---</option>";
 }

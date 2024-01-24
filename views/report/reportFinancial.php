@@ -145,6 +145,7 @@
                 CreateTableReport(financials);
             } else {
                 tableData.html(`<tr class="text-center"><td colspan="7">..... ບໍ່ພົບຂໍ້ມູນ.....</td></tr>`);
+                isExport();
             }
         });
     })
