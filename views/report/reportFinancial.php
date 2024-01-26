@@ -42,6 +42,7 @@
                 <th scope="col">#</th>
                 <th scope="col">ງວດທີ</th>
                 <th scope="col">ວັນທີ</th>
+                <th scope="col">ໜ່ວຍ</th>
                 <th scope="col">ຍອດຂາຍ</th>
                 <th scope="col">ຫັກເບີເຊັນ</th>
                 <th scope="col">ລາງວັນ</th>
@@ -59,7 +60,43 @@
     </div>
 
 </div>
-<script src="./script/calculatorlot.js">
+<script>
+    const calculatorlot = (sales, percentage, award, withdraw) => {
+        const isAward = withdraw == "0";
+        const fsales = Number(sales);
+        const fpercentage = Number(percentage);
+        const faward = Number(award);
+        const calpercent = (fsales * fpercentage) / 100;
+        const caltotal = fsales - calpercent;
+        const amout = isAward ? caltotal : caltotal - faward;
+        return {
+            percentageMoney: calpercent,
+            totalMoney: caltotal,
+            amoutMoney: amout
+        };
+    };
+    const jFormatMoney = (money) => {
+        const formattedValue = new Intl.NumberFormat('en-US').format(money);
+        return formattedValue;
+    }
+
+    function jDateformat(inputDate) {
+        var dateParts = inputDate.split("-");
+        var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
+        return formattedDate;
+    }
+
+    const jdateTimeNow = () => {
+        const currentDate = new Date();
+        const day = currentDate.getDate().toString().padStart(2, '0');
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = currentDate.getFullYear();
+        const hours = currentDate.getHours().toString().padStart(2, '0');
+        const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+        const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+        const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        return formattedDateTime;
+    }
 </script>
 <script>
     const tableData = $("#tabledata");
@@ -68,13 +105,13 @@
         const table = document.getElementById("tableReport");
         var rowCount = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr").length;
         $("#btnexport").prop("disabled", rowCount <= 1);
-        console.log(rowCount);
     }
 
     isExport();
 
     //Export Excel
     $("#btnexport").on("click", () => {
+        const Month = new Date().getMonth() + 1;
         const table = document.getElementById("tableReport");
         const workbook = XLSX.utils.table_to_book(table, {
             sheet: "ລາຍງານລົງບັນຊີ"
@@ -84,23 +121,23 @@
 
     const CreateTableReport = (financials) => {
         tableData.html("");
-        console.log(financials);
         let sumSales = 0;
         let sumPercent = 0;
         let sumAward = 0;
         let sumTotal = 0;
         financials.forEach((fc, index) => {
-            const calculator = calculatorlot(fc.Sales, fc.Percentage, fc.Award);
+            const calculator = calculatorlot(fc.Sales, fc.Percentage, fc.Award, fc.withdrawn);
             sumSales += Number(fc.Sales);
             sumPercent += Number(calculator.percentageMoney);
             sumAward += Number(fc.Award);
             sumTotal += Number(calculator.amoutMoney);
-            // console.log(calculator);
+
             const tr = $("<tr></tr>");
             tr.html(`
             <td class="text-center">${index+1}</td>
             <td class="text-center">${fc.lotteryNo}</td>
             <td class="text-center">${jDateformat(fc.lotDate)}</td>
+            <td class="text-center">${fc.unitName}</td>
             <td class="text-end">${jFormatMoney(fc.Sales)}</td>
             <td class="text-end">${jFormatMoney(calculator.percentageMoney)}</td>
             <td class="text-end">${jFormatMoney(fc.Award)}</td>
@@ -110,7 +147,7 @@
         });
         const tr = $("<tr></tr>");
         tr.html(`
-            <td class="text-center" colspan="3">ລວມ</td>
+            <td class="text-center" colspan="4">ລວມ</td>
             <td class="text-end">${jFormatMoney(sumSales)}</td>
             <td class="text-end">${jFormatMoney(sumPercent)}</td>
             <td class="text-end">${jFormatMoney(sumAward)}</td>

@@ -1,13 +1,3 @@
-const calculatorlot = (sales, percentage, award) => {
-    const fsales = Number(sales);
-    const fpercentage = Number(percentage);
-    const faward = Number(award);
-    const calpercent = (fsales * fpercentage) / 100;
-    const caltotal = fsales - calpercent;
-    const amout = caltotal - faward;
-    return { percentageMoney: calpercent, totalMoney: caltotal, amoutMoney: amout };
-};
-
 function jDateformat(inputDate) {
     var dateParts = inputDate.split("-");
     var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];

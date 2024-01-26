@@ -92,7 +92,7 @@ $scanPath = '/lottery/views/Scaner.php';
                     action.append(createButtonUpdate(unit));
                 } else {
                     // create button
-                    action.append(createButtonAdd(unit));
+                    action.append(createButtonAdd(unit, index, units));
                 }
             });
             tr.append(action);
@@ -103,10 +103,10 @@ $scanPath = '/lottery/views/Scaner.php';
         });
     }
 
-    const createButtonAdd = (unit) => {
+    const createButtonAdd = (unit, index, units) => {
         const buttonAdd = $("<button class='btn btn-primary btn-sm'>ປ້ອນ</button>");
         buttonAdd.click(() => {
-            AlertAddLottery(unit);
+            AlertAddLottery(unit, index, units);
         });
         return buttonAdd;
     }
@@ -126,10 +126,9 @@ $scanPath = '/lottery/views/Scaner.php';
     }
 
 
-    const AlertAddLottery = (unit) => {
+    const AlertAddLottery = (unit, index, units) => {
         const withdrawn = unit['withdrawn'];
-        const elememtWithdrawn = withdrawn == 0 ? "disabled" : "required";
-        const Redborder = withdrawn == 0 ? "" : "border-danger";
+        const isMinusAward = withdrawn != 0;
         Swal.fire({
             title: unit['unitName'],
             html: `
@@ -168,20 +167,20 @@ $scanPath = '/lottery/views/Scaner.php';
                             <div class="mb-3">
                                 <div>
                                     <label for="" class="form-label w-100 text-start">ລາງວັນ</label>
-                                    <input type="text" class="form-control ${Redborder}" placeholder="ລາງວັນ" id="lotPrice" name="Award" ${elememtWithdrawn}>
+                                    <input type="text" class="form-control border-danger" placeholder="ລາງວັນ" id="lotPrice" name="Award" required>
                                 </div>
                             </div>
                             <div class="mb-3 d-flex gap-1">
                                 <div class="flex-fill">
                                     <label for="Codeaward" class="form-label w-100 text-start">ເລກທີລາງວັນ</label>
-                                    <input type="text" class="form-control ${Redborder}" placeholder="ເລກທີລາງວັນ" id="Codeaward" name="Awardno" ${elememtWithdrawn}>
+                                    <input type="text" class="form-control border-danger" placeholder="ເລກທີລາງວັນ" id="Codeaward" name="Awardno">
                                 </div>
                                 <div class="mt-auto">
-                                    <a href="<?= $scanPath ?>" target="_blank" class="btn btn-info" ${elememtWithdrawn}><i class='bx bx-scan' ></i></a>
+                                    <a href="<?= $scanPath ?>" target="_blank" class="btn btn-info"><i class='bx bx-scan' ></i></a>
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label for="" class="form-label w-100 text-start">ຍອດເຫຼືອ</label>
+                                <label for="" class="form-label w-100 text-start">ຍອດເຫຼືອ ${isMinusAward?"":" <span class='text-warning'>(ບໍ່ລົບລາງວັນ)</span>"}</label>
                                 <input type="text" class="form-control" placeholder="ຍອດເຫຼືອ" id="total" name="total" disabled>
                             </div>
                             <div>
@@ -191,7 +190,7 @@ $scanPath = '/lottery/views/Scaner.php';
                         `,
             showConfirmButton: false,
             showCloseButton: true,
-            focusCancel: false
+            focusCancel: false,
         });
 
         $("#price").focus();
@@ -200,53 +199,62 @@ $scanPath = '/lottery/views/Scaner.php';
 
         const txtPrice = $('#price'); //ປ້ອນຍອດຂາຍ
         const txtpercent = $('#percentage'); //ຫັກເບີເຊັນ
-        const txtamount = $('#amount'); //ເປັນເງິນ
+        const txtPercentPrie = $('#amount'); //ເປັນເງິນ
         const txtMoney = $('#money'); //ເງິນຕ້ອງຖອກ
-        const txtlottery = $('#lotPrice'); //ລາງວັນ
+        const txtAward = $('#lotPrice'); //ລາງວັນ
         const txttotal = $('#total'); //ຍອດເຫຼືອ
         const frmlottery = $('#frmlottery');
 
+        // ຈຳນວນເງິນມີຈຸດ
+        const FormatText = (element) => {
+            const text = unformatMoney(element.val());
+            const format = formatMoney(text);
+            element.val(format);
+        }
+
+        //ຄິດໄລຄ່າເປີເຊັນ
+        const Calpercentage = () => {
+            const percentage = txtpercent.val();
+            const Sales = unformatMoney(txtPrice.val());
+            const amount = (Sales * percentage) / 100;
+            txtPercentPrie.val(amount);
+            FormatText(txtPercentPrie);
+        }
+
+        // ສະແດງຜົນລັບ
+        const CalTotal = () => {
+            const Sales = unformatMoney(txtPrice.val());
+            const PercentPrice = unformatMoney(txtPercentPrie.val());
+            const amount = Sales - PercentPrice;
+            txttotal.val(amount);
+            txtMoney.val(amount);
+            FormatText(txtMoney);
+            FormatText(txttotal);
+        }
+
+        // ຄິດໄລ່ຫັກຍອດເປີເຊັນ
+        const ColTotalWithPercentage = () => {
+            if (isMinusAward) {
+                const Price = unformatMoney(txtMoney.val());
+                const award = unformatMoney(txtAward.val())
+                const amount = Price - award;
+                txttotal.val(amount);
+                FormatText(txttotal);
+            }
+        }
+
         txtPrice.on("keyup", () => {
-            const price = unformatMoney(txtPrice.val());
-            txtPrice.val(formatMoney(price));
-            const percent = txtpercent.val();
-            const lottery = unformatMoney(txtlottery.val());
-            const amount = (price * percent) / 100;
-            const money = price - amount;
-            const calculator = money - lottery;
-            const formattamount = new Intl.NumberFormat('en-US').format(amount);
-            const formattmoney = new Intl.NumberFormat('en-US').format(money);
-            const formattotal = new Intl.NumberFormat('en-US').format(calculator);
-            txtamount.val(formattamount);
-            txtMoney.val(formattmoney);
-            txttotal.val(formattotal);
+            FormatText(txtPrice);
+            Calpercentage();
+            CalTotal();
+            ColTotalWithPercentage();
         });
 
-        txtlottery.on('keyup', () => {
-            const money = txtMoney.val();
-            const lotprice = txtlottery.val();
-            txtlottery.val(formatMoney(lotprice));
-            const formatmoney = Number(unformatMoney(money));
-            const formatlotprice = Number(unformatMoney(lotprice));
-            const total = formatmoney - formatlotprice;
-            const formattotal = new Intl.NumberFormat('en-US').format(total);
-            txttotal.val(formattotal);
+        txtAward.on('keyup', () => {
+            FormatText(txtAward);
+            ColTotalWithPercentage();
         });
 
-        txtpercent.on('keyup', () => {
-            const price = unformatMoney(txtPrice.val());
-            const percent = txtpercent.val();
-            const lottery = unformatMoney(txtlottery.val());
-            const amount = (price * percent) / 100;
-            const money = price - amount;
-            const calculator = money - lottery;
-            const formattamount = new Intl.NumberFormat('en-US').format(amount);
-            const formattmoney = new Intl.NumberFormat('en-US').format(money);
-            const formattotal = new Intl.NumberFormat('en-US').format(calculator);
-            txtamount.val(formattamount);
-            txtMoney.val(formattmoney);
-            txttotal.val(formattotal);
-        });
 
         frmlottery.on("submit", (e) => {
             e.preventDefault();
@@ -256,28 +264,39 @@ $scanPath = '/lottery/views/Scaner.php';
                     position: "center",
                     icon: res.data,
                     text: res.message,
-                }).finally(() => {
-                    location.reload();
+                    showCancelButton: true,
+                    confirmButtonText: "ໜ່ວຍຕໍ່ໄປ",
+                    cancelButtonText: `ກັບຄືນ`,
+                    didClose: () => {
+                        location.reload();
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const nextSize = units.length;
+                        const nextIndex = index + 1;
+                        if (nextSize > nextIndex) {
+                            AlertAddLottery(units[nextIndex], nextIndex, units);
+                        }
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        location.reload();
+                    }
                 });
-                // if (res.state) {
-                //     const column = $(`#col${unit['unitID']}`);
-                //     column.attr("class", "table-success");
-                // }
             });
         });
     }
 
+
+    // ແກ້ໄຂຂໍ້ມູນ
     const AlertUpdate = (financial) => {
         const withdrawn = financial['withdrawn'];
-        const elememtWithdrawn = withdrawn == 0 ? "disabled" : "required";
-        const Redborder = withdrawn == 0 ? "" : "border-danger";
+        const isMinusAward = withdrawn != 0;
         //======= Calculator ==========
         const getSale = Number(financial['Sales']);
         const getPercentage = Number(financial['Percentage']);
         const getAward = Number(financial['Award']);
         const getCalPercent = (getSale * getPercentage) / 100;
         const getMoney = getSale - getCalPercent;
-        const getTotal = getMoney - getAward;
+        const getTotal = isMinusAward ? getMoney - getAward : getMoney;
 
         Swal.fire({
             title: financial['unitName'],
@@ -317,20 +336,20 @@ $scanPath = '/lottery/views/Scaner.php';
                             <div class="mb-3">
                                 <div>
                                     <label for="" class="form-label w-100 text-start">ລາງວັນ</label>
-                                    <input type="text" class="form-control ${Redborder}" placeholder="ລາງວັນ" id="lotPrice" value="${formatMoney(""+getAward)}" name="Award" ${elememtWithdrawn}>
+                                    <input type="text" class="form-control border-danger" placeholder="ລາງວັນ" id="lotPrice" value="${formatMoney(""+getAward)}" name="Award" required>
                                 </div>
                             </div>
                             <div class="mb-3 d-flex gap-1">
                                 <div class="flex-fill">
                                     <label for="Codeaward" class="form-label w-100 text-start">ເລກທີລາງວັນ</label>
-                                    <input type="text" class="form-control ${Redborder}" placeholder="ເລກທີລາງວັນ" id="Codeaward" value="${financial['AwardNo']}" name="Awardno" ${elememtWithdrawn}>
+                                    <input type="text" class="form-control border-danger" placeholder="ເລກທີລາງວັນ" id="Codeaward" value="${financial['AwardNo']}" name="Awardno">
                                 </div>
                                 <div class="mt-auto">
-                                    <a href="<?= $scanPath ?>" target="_blank" class="btn btn-info" ${elememtWithdrawn}><i class='bx bx-barcode'></i></a>
+                                    <a href="<?= $scanPath ?>" target="_blank" class="btn btn-info"><i class='bx bx-barcode'></i></a>
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label for="" class="form-label w-100 text-start">ຍອດເຫຼືອ</label>
+                                <label for="" class="form-label w-100 text-start">ຍອດເຫຼືອ ${isMinusAward?"":" <span class='text-warning'>(ບໍ່ລົບລາງວັນ)</span>"}</label>
                                 <input type="text" class="form-control" placeholder="ຍອດເຫຼືອ" id="total" value="${formatMoney(""+getTotal)}" name="total" disabled>
                             </div>
                             <div>
@@ -347,52 +366,60 @@ $scanPath = '/lottery/views/Scaner.php';
 
         const txtPrice = $('#price'); //ປ້ອນຍອດຂາຍ
         const txtpercent = $('#percentage'); //ຫັກເບີເຊັນ
-        const txtamount = $('#amount'); //ເປັນເງິນ
+        const txtPercentPrie = $('#amount'); //ເປັນເງິນ
         const txtMoney = $('#money'); //ເງິນຕ້ອງຖອກ
-        const txtlottery = $('#lotPrice'); //ລາງວັນ
+        const txtAward = $('#lotPrice'); //ລາງວັນ
         const txttotal = $('#total'); //ຍອດເຫຼືອ
         const frmlottery = $('#frmlottery');
 
+        // ຈຳນວນເງິນມີຈຸດ
+        const FormatText = (element) => {
+            const text = unformatMoney(element.val());
+            const format = formatMoney(text);
+            element.val(format);
+        }
+
+        //ຄິດໄລຄ່າເປີເຊັນ
+        const Calpercentage = () => {
+            const percentage = txtpercent.val();
+            const Sales = unformatMoney(txtPrice.val());
+            const amount = (Sales * percentage) / 100;
+            txtPercentPrie.val(amount);
+            FormatText(txtPercentPrie);
+        }
+
+        // ສະແດງຜົນລັບ
+        const CalTotal = () => {
+            const Sales = unformatMoney(txtPrice.val());
+            const PercentPrice = unformatMoney(txtPercentPrie.val());
+            const amount = Sales - PercentPrice;
+            txttotal.val(amount);
+            txtMoney.val(amount);
+            FormatText(txtMoney);
+            FormatText(txttotal);
+        }
+
+        // ຄິດໄລ່ຫັກຍອດເປີເຊັນ
+        const ColTotalWithPercentage = () => {
+            if (isMinusAward) {
+                const Price = unformatMoney(txtMoney.val());
+                const award = unformatMoney(txtAward.val())
+                const amount = Price - award;
+                txttotal.val(amount);
+                FormatText(txttotal);
+            }
+        }
+
         txtPrice.on("keyup", () => {
-            const price = unformatMoney(txtPrice.val());
-            txtPrice.val(formatMoney(price));
-            const percent = txtpercent.val();
-            const lottery = unformatMoney(txtlottery.val());
-            const amount = (price * percent) / 100;
-            const money = price - amount;
-            const calculator = money - lottery;
-            const formattamount = new Intl.NumberFormat('en-US').format(amount);
-            const formattmoney = new Intl.NumberFormat('en-US').format(money);
-            const formattotal = new Intl.NumberFormat('en-US').format(calculator);
-            txtamount.val(formattamount);
-            txtMoney.val(formattmoney);
-            txttotal.val(formattotal);
+            FormatText(txtPrice);
+            Calpercentage();
+            CalTotal();
+            ColTotalWithPercentage();
         });
 
-        txtlottery.on('keyup', () => {
-            const money = txtMoney.val();
-            const lotprice = txtlottery.val();
-            txtlottery.val(formatMoney(lotprice));
-            const formatmoney = Number(unformatMoney(money));
-            const formatlotprice = Number(unformatMoney(lotprice));
-            const total = formatmoney - formatlotprice;
-            const formattotal = new Intl.NumberFormat('en-US').format(total);
-            txttotal.val(formattotal);
-        });
-
-        txtpercent.on('keyup', () => {
-            const price = unformatMoney(txtPrice.val());
-            const percent = txtpercent.val();
-            const lottery = unformatMoney(txtlottery.val());
-            const amount = (price * percent) / 100;
-            const money = price - amount;
-            const calculator = money - lottery;
-            const formattamount = new Intl.NumberFormat('en-US').format(amount);
-            const formattmoney = new Intl.NumberFormat('en-US').format(money);
-            const formattotal = new Intl.NumberFormat('en-US').format(calculator);
-            txtamount.val(formattamount);
-            txtMoney.val(formattmoney);
-            txttotal.val(formattotal);
+        txtAward.on('keyup', () => {
+            FormatText(txtAward);
+            ColTotalWithPercentage();
         });
 
         frmlottery.on("submit", (e) => {
