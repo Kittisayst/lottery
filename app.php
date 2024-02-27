@@ -25,7 +25,8 @@ if ($login->isLogin()) {
     //select lottery
     new Router("selectlot", "./views/selectLottery.php", "ປ້ອນຂໍ້ມູນງວດທີ");
     //Payment
-    new Router("payment", "./views/payment.php", "ຖອກເງິນ");
+    new Router("payment", "./views/payment.php", "ເລືອກໜ່ວຍຖອກເງິນ");
+    new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
     //Reports
     new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນ");
     //footer

@@ -24,6 +24,9 @@ if (isset($_GET['api'])) {
         case 'getReprotFinancialSearch':
             getReprotFinancialSearch();
             break;
+        case 'getlistPayment':
+            getListToPayment();
+            break;
         default:
             # code...
             break;
@@ -200,5 +203,18 @@ function getReprotFinancialSearch()
     }
 }
 
-// $startDate = date('Y-m-d', strtotime($_POST['startdate'] ?? ""));
-// $endDate = date('Y-m-d', strtotime($_POST['enddate']) ?? "");
+function getListToPayment()
+{
+    require_once("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $unitID = $_GET['unitid'];
+    $sql = 'SELECT * FROM tb_financail
+    INNER JOIN tb_lottery ON tb_financail.lotteryID = tb_lottery.lotteryID
+    INNER JOIN tb_unit ON tb_financail.UnitID = tb_unit.unitID
+    WHERE tb_financail.UnitID=? AND state=0 ORDER BY tb_lottery.lotteryID ASC';
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$unitID]);
+    $result = $stmt->fetchAll();
+    $conn->createJson($result, "ຂໍ້ມູນການປ້ອນ", true);
+}
