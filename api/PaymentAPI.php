@@ -26,10 +26,10 @@ function create()
     require_once("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
-    $sql = "INSERT INTO tb_payment VALUES(?,?,?)";
+    $sql = "INSERT INTO tb_payment VALUES(?,?,?,?)";
     $stm = $connect->prepare($sql);
     date_default_timezone_set('Asia/Vientiane');
-    $Data = [null, date("Y-m-d H:i:s"), $_POST['UserID']];
+    $Data = [null, date("Y-m-d"), $_POST['UserID'], 0];
     $stm->execute($Data);
     if ($stm) {
         $conn->createJson(getLastID(), "ບັນທຶກຂໍ້ມູນການຖອກເງິນສຳເລັດ", true);

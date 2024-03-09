@@ -27,8 +27,13 @@ if ($login->isLogin()) {
     //Payment
     new Router("payment", "./views/payment.php", "ເລືອກໜ່ວຍຖອກເງິນ");
     new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
+    new Router("history", "./views/HistoryPayment.php", "ປະຫວັດການຖອກເງິນ");
     //Reports
     new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນ");
+    new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");
+    // Debt
+    new Router("debt", "./views/Debt.php", "ລາຍການທວງໜີ້");
+    new Router("financialhistory", "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");
     //footer
     require_once("./views/Footer.php");
 } else {

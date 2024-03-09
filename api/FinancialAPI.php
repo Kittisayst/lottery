@@ -27,6 +27,9 @@ if (isset($_GET['api'])) {
         case 'getlistPayment':
             getListToPayment();
             break;
+        case 'getUpdateState':
+            updateState();
+            break;
         default:
             # code...
             break;
@@ -217,4 +220,19 @@ function getListToPayment()
     $stmt->execute([$unitID]);
     $result = $stmt->fetchAll();
     $conn->createJson($result, "ຂໍ້ມູນການປ້ອນ", true);
+}
+
+function updateState()
+{
+    require_once("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql =  "UPDATE tb_financail SET state = ? WHERE FinancialID = ?";
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([1, $_POST['FinancialID']]);
+    if ($stmt) {
+        $conn->createJson("success", "ບັນທຶກຄືນເງິນສຳເລັດ", true);
+    } else {
+        $conn->createJson("error", "ບັນທຶກຄືນເງິນຜິດພາດ", false);
+    }
 }

@@ -6,7 +6,7 @@ $stmt = $db->prepare("SELECT * FROM tb_province");
 $stmt->execute();
 $result = $stmt->fetchAll();
 if ($result) {
-    echo "<option value='' disabled selected>---ເລືອກແຂວງ---</option>";
+    echo "<option value='0' selected>---ເລືອກແຂວງ---</option>";
     foreach ($result as $row) {
         $isselect = "";
         if (isset($_GET['pid'])) {

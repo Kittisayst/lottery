@@ -2,7 +2,7 @@
     <?php require_once("./views/Alert.php") ?>
     <?php include_once("./database/getPaymentNo.php") ?>
     <div class="mb-3">
-        <button class="btn btn-secondary" id="btnback"><i class='bx bx-arrow-back'></i> ກັບຄືນ</button>
+        <a class="btn btn-secondary" href="?page=payment&pid=<?= $_GET['pid'] ?>&search=<?= $_GET['search'] ?>"><i class='bx bx-arrow-back'></i> ກັບຄືນ</a>
     </div>
     <div class="d-flex gap-1">
         <div class="col border rounded-2 bg-white p-2">
@@ -30,7 +30,7 @@
                             <th scope="col">#</th>
                             <th scope="col">ເງິນສົດ</th>
                             <th scope="col">ເງິນໂອນ</th>
-                            <th scope="col">ໝາຍເຫດ</th>
+                            <th scope="col">ບໍລິສັດຕິດລົບ</th>
                             <th scope="col">ລົບ</th>
                         </tr>
                     </thead>
@@ -41,7 +41,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="my-2 text-end me-1 fs-5">
+            <div class="my-2 text-end me-1 py-1 fs-5">
                 <span class="" id="showAmount">
 
                 </span>
@@ -55,15 +55,11 @@
 <script>
     const PaymentData = [];
 
-    $("#btnback").click(() => {
-        history.back();
-    });
-
     $.get(`./api/FinancialAPI.php?api=getlistPayment&unitid=<?= $_GET['unitid'] ?>`, (res) => {
-        // console.log(res);
         const financials = res.data;
         financials.forEach((financial, index) => {
             const Money = Calculator(financial);
+            const RepayValue = Money.calAmount < 0 ? Math.abs(Money.calAmount) : 0;
             const isActive = index === 0 ? "" : "disabled";
             const button = $(`<button class="btn btn-sm btn-success w-100" ${isActive}><i class='bx bxs-wallet-alt'></i> ຖອກເງິນ</button>`);
             const list = $(`
@@ -78,13 +74,25 @@
                 <span>ເປັນເງິນ: ${FMoney(Money.calpercent)}</span>
             </p>
             <p>
-                <span class="me-5">ເງິນລາງວັນ: ${FMoney(Money.calRealPrice)}</span>
-                <span class="badge text-bg-danger me-2 fs-6">ເງິນຕ້ອງຖອກ: ${FMoney(Money.calAmount)}</span>
+                <span class="me-5">ເງິນລາງວັນ: ${FMoney(Money.Award)}</span>
+                <span class="badge text-bg-danger me-2 fs-6" id="showMoney">ເງິນຕ້ອງຖອກ: ${FMoney(Money.calAmount)}</span>
                 <span class="badge text-bg-warning">${Money.isWithdraw}</span>
             </p>
             </li>`);
             list.append(button);
             $("#listFinancial").append(list);
+            //ກວດສອບປະຫວັດການຈ່າຍ
+            let lastMoney = 0;
+            $.get(`./api/PaymentlistAPI.php?api=getFinancialState&FinancialID=${financial.FinancialID}`, (resState) => {
+                const sumMoney = Number(resState.data.sumMoney);
+                lastMoney = sumMoney;
+                if (sumMoney > 0) {
+                    Money.calAmount = Money.calAmount - sumMoney;
+                    $("#showMoney").text(`ເງິນຕ້ອງຖອກ: ${FMoney(Money.calAmount)}`);
+                    $("#showMoney").attr("class", "badge text-bg-warning me-2 fs-6");
+                }
+            });
+            //ກົດຖອກເງິນ
             button.click(() => {
                 Swal.fire({
                     title: `ຈຳນວນເງິນ: ${FMoney(Money.calAmount)} ກີບ`,
@@ -97,6 +105,10 @@
                         <div class="mb-3">
                         <label for="" class="form-label text-start w-100">ເງິນໂອນ</label>
                             <input type="text" class="form-control" placeholder="ເງິນໂອນ" name="transfer" id="txttransfer">
+                        </div>
+                        <div class="mb-3">
+                        <label for="txtRepay" class="form-label text-start w-100">ບໍລິສັດຕິດລົບ</label>
+                            <input type="text" class="form-control" placeholder="ບໍລິສັດຕິດລົບ" name="repay" value="${FMoney(RepayValue)}" id="txtRepay">
                         </div>
                         <div class="mb-3">
                         <label for="" class="form-label text-start w-100">ອື່ນໆ</label>
@@ -123,6 +135,14 @@
                 const txtcash = $("#txtcash");
                 const txttransfer = $("#txttransfer");
                 const txtother = $("#txtother");
+                const txtRepay = $("#txtRepay");
+
+                txtRepay.on("keyup", () => {
+                    const repay = Number(txtRepay.val());
+                    const money = Calculator(financial);
+                    let calAmount = Math.abs(money.calAmount);
+                    const total = calAmount - repay;
+                });
 
                 const EventHandlerCalculator = (element) => {
                     element.on("keyup", () => {
@@ -144,31 +164,27 @@
                 frmPayment.on("submit", (e) => {
                     e.preventDefault();
                     const formdata = frmPayment.serializeArray();
-                    if (formdata[0].value == "" && formdata[1].value == "" && formdata[2].value == "" && formdata[3].value == "") {
-                        $("#mswarning").text("ກະລຸນາປ້ອນຈຳນວນເງິນ.....!");
-                        const hidems = setTimeout(() => {
-                            $("#mswarning").text("");
-                        }, 4000);
+                    const moneys = FormMoney(formdata);
+
+                    if (EmptyMoney(formdata)) {
+                        messageAlert("ກະລຸນາປ້ອນຈຳນວນເງິນ.....!");
                     } else {
-                        const cash = UnMoney(formdata[0].value);
-                        const transfer = UnMoney(formdata[1].value);
-                        const other = UnMoney(formdata[2].value);
-                        const sum = cash + transfer + other;
-                        if (sum > Money.calAmount) {
-                            $("#mswarning").text("ຈຳນວນເງິນຫຼາຍກ່ວາຈຳນວນທີ່ຕ້ອງຖອກ");
-                            const hidems = setTimeout(() => {
-                                $("#mswarning").text("");
-                            }, 4000);
+                        if (Money.calAmount < 0) {
+                            //ຖອກແບບຕິດລົບ
+                            const repayMoney = Math.abs(Money.calAmount);
+                            if (repayMoney == moneys.repay) {
+                                createPaymentlist(index, list, financial, formdata, 0);
+                            } else {
+                                messageAlert("ກະລຸນາຖອກເງິນໃຫ້ພໍດີກັບວົງເງິນ");
+                            }
                         } else {
-                            list.attr("class", "d-none");
-                            PaymentData.push({
-                                "el": list,
-                                "data": financial,
-                                "form": formdata
-                            });
-                            showPaymentData();
-                            List_Disabled(index);
-                            Swal.close();
+                            // ຖອກເງິນປົກກະຕິ
+                            const sum = moneys.cash + moneys.transfer + moneys.repay + moneys.other;
+                            if (sum > 0) {
+                                createPaymentlist(index, list, financial, formdata, lastMoney);
+                            } else {
+                                messageAlert("ກະລຸນາຖອກເງິນໃຫ້ພໍດີກັບວົງເງິນ");
+                            }
                         }
                     }
                 });
@@ -177,25 +193,35 @@
         });
     });
 
+    const createPaymentlist = (index, list, financial, formdata, lastPay) => {
+        list.attr("class", "d-none");
+        PaymentData.push({
+            "el": list,
+            "data": financial,
+            "formdata": formdata,
+            "lastPay": lastPay
+        });
+        showPaymentData();
+        List_Disabled(index);
+        Swal.close();
+    }
+
 
     const showPaymentData = () => {
         $("#paymentData").html(``);
         let amount = 0;
         PaymentData.forEach((payment, index) => {
-            const data = payment.data;
-            const formdata = payment.form;
-            const cash = UnMoney(formdata[0].value);
-            const transfer = UnMoney(formdata[1].value);
-            const orther = UnMoney(formdata[2].value);
-            const comment = formdata[3].value;
+            const financial = payment.data;
+            const moneys = FormMoney(payment.formdata);
+            const comment = payment.formdata[4];
 
             const btnDelete = $(`<button class="btn btn-sm btn-danger"><i class='bx bxs-trash'></i></button>`);
             const rowDel = $(`<td class="text-center"></td>`);
             const row = $(`<tr>
             <td class="text-center">${index+1}</td>
-            <td class="text-end">${FMoney(cash)}</td>
-            <td class="text-end">${FMoney(transfer)}</td>
-            <td>${comment}</td>
+            <td class="text-end">${FMoney(moneys.cash)}</td>
+            <td class="text-end">${FMoney(moneys.transfer)}</td>
+            <td>${FMoney(moneys.repay)}</td>
             </tr>`);
             row.append(rowDel);
             rowDel.append(btnDelete);
@@ -207,7 +233,7 @@
                     $("#paymentData").html(`<tr><td colspan="5" class="text-center">....ເລືອກງວດທີ່ຕ້ອງການຖອກເງິນ....</td></tr>`);
                 }
             });
-            amount += cash + transfer + orther;
+            amount += moneys.cash + moneys.transfer + moneys.other + moneys.repay;
             $("#paymentData").append(row);
         });
 
@@ -227,25 +253,68 @@
         const data = {
             UserID: $("#txtUserID").val()
         };
-        console.log(PaymentData);
-        // $.post(`./api/PaymentAPI.php?api=create`, data, (res) => {
-        //     console.log(res);
-        //     if (res.state) {
-        //         console.log(PaymentData);
-        //         PaymentData.forEach(list => {
-        //             const fromData = {
-        //                 "paymentID": res.data,
-        //                 "FinancialID": list.data.FinancialID,
-        //                 "Cash": list.form[0].value,
-        //                 "Transfer": list.form[1].value,
-        //                 "Other": list.form[2].value,
-        //                 "Comment": list.form[3].value
-        //             };
-        //             console.log(fromData);
-        //             SavePaylist(fromData);
-        //         });
-        //     }
-        // });
+
+        //ບັນທຶກການຖອກເງິນ
+        $.post(`./api/PaymentAPI.php?api=create`, data, (respayment) => {
+            if (respayment.state) {
+                //ບັນທຶກລາຍການຖອກເງິນ
+                const savePromises = PaymentData.map(payment => SaveList(payment, respayment));
+                Promise.all(savePromises)
+                    .then((ms) => {
+                        //ການບັນທືກ
+                        AlertSave("ບັນທຶກການຖອກເງິນສຳເລັດ", "success");
+                    }).catch((err) => {
+                        //ການບັນທືກ
+                        AlertSave("ບັນທຶກການຖອກເງິນຜິດພາດ", "error");
+                    });
+            }
+        });
+    }
+
+    const SaveList = (payment, respayment) => {
+        const Financial = payment.data;
+        const lastPay = payment.lastPay;
+        const moneys = FormMoney(payment.formdata);
+        const calculator = Calculator(Financial);
+        const formData = {
+            "paymentID": respayment.data,
+            "FinancialID": Financial.FinancialID,
+            "cash": moneys.cash,
+            "transfer": moneys.transfer,
+            "repay": moneys.repay,
+            "etc": moneys.other,
+            "comment": payment.formdata[4].value
+        };
+        return new Promise((resolve, reject) => {
+            $.post(`./api/PaymentlistAPI.php?api=create`, formData, (res) => {
+                isSave = res.state;
+                if (res.state) {
+                    const total = calculator.calAmount - lastPay;
+                    //ກວດສອບສະເພາະຖອກເງິນປົກກະຕິບໍ່ຕິດລົບ
+                    if (total > 0) {
+                        const isPayfull = moneys.sum >= total;
+                        if (isPayfull) {
+                            updateFinancialState(Financial.FinancialID);
+                        }
+                    } else {
+                        updateFinancialState(Financial.FinancialID);
+                    }
+                    resolve(res);
+                } else {
+                    reject(new Error(res));
+                }
+            });
+        });
+    }
+
+    const updateFinancialState = (financialID) => {
+        const api = `./api/FinancialAPI.php?api=getUpdateState`;
+        const data = {
+            "FinancialID": financialID
+        };
+        $.post(api, data, (res) => {
+            console.log(res);
+        });
     }
 
     const SavePaylist = (data) => {
@@ -271,10 +340,12 @@
         const Award = Number(financial.Award);
         const IsWithdraw = Number(financial.withdrawn);
         const Amount = IsWithdraw == 0 ? RealPrice : RealPrice - Award;
+
         return {
             calpercent: calPercent,
             calRealPrice: RealPrice,
             calAmount: Amount,
+            Award: Award,
             isWithdraw: IsWithdraw == 0 ? "ບໍ່ລົບລາງວັນ" : ""
         };
     }
@@ -300,5 +371,48 @@
         const text = UnMoney(element.val());
         const format = FMoney(text);
         element.val(format);
+    }
+
+    // ກວດສອບຂໍ້ມູນ
+    const EmptyMoney = (formdata) => {
+        return formdata[0].value == "" && formdata[1].value == "" && formdata[2].value == "" && formdata[3].value == "";
+    }
+
+    //ຂໍ້ມູນຟອມ
+    const FormMoney = (formdata) => {
+        const cash = UnMoney(formdata[0].value);
+        const transfer = UnMoney(formdata[1].value);
+        const repay = UnMoney(formdata[2].value);
+        const other = UnMoney(formdata[3].value);
+        const sum = cash + transfer + repay + other;
+
+        return {
+            cash: cash,
+            transfer: transfer,
+            other: other,
+            repay: repay,
+            sum: sum,
+        }
+    }
+
+    //ສະແດງຂໍ້ຄວາມແຈ້ງເຕືອນ
+    const messageAlert = (text) => {
+        $("#mswarning").text(text);
+        const hidems = setTimeout(() => {
+            $("#mswarning").text("");
+        }, 4000);
+    }
+
+    //Aelrt
+    const AlertSave = (message, icon) => {
+        Swal.fire({
+            title: "ບັນທຶກ",
+            text: message,
+            icon: icon
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            }
+        });
     }
 </script>
