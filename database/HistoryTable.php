@@ -1,6 +1,7 @@
 <?php
 if (isset($_GET['unitid'])) {
     require_once("./database/connectDB.php");
+    $userName = $_SESSION['user'][0]['UserName'];
     $connnect = new connectDB();
     $db = $connnect->getConnection();
     $sql = "SELECT * FROM tb_paymentlist
@@ -26,7 +27,7 @@ if (isset($_GET['unitid'])) {
                 <td class="text-end"><?= $money['etc'] ?></td>
                 <td class="text-center" id="<?= $row['paymentID'] ?>">
                     <button class="btn btn-sm btn-info text-secondary-emphasis" onclick="showalert(<?= $row['paymentID'] ?>)"><i class='bx bxs-show'></i></button>
-                    <a href="#" class="btn btn-sm btn-primary"><i class='bx bxs-printer'></i></a>
+                    <a href="./database/PrintTricket.php?paymentid=<?= $row['paymentID'] ?>&userprint=<?=$userName?>" target="_blank" class="btn btn-sm btn-primary" ><i class='bx bxs-printer'></i></a>
                 </td>
             </tr>
     <?php
@@ -68,7 +69,7 @@ if (isset($_GET['unitid'])) {
                 console.log(payments);
                 let sum = 0;
                 payments.forEach((payment, index) => {
-                    const moneys =  createMoney(payment);
+                    const moneys = createMoney(payment);
                     sum += moneys.sum;
                     const col = $("<tr></tr>");
                     col.html(`

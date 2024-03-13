@@ -1,6 +1,9 @@
 <div class="container content">
     <?php require_once("./views/Alert.php") ?>
-    <?php include_once("./database/getPaymentNo.php") ?>
+    <?php
+    include_once("./database/getPaymentNo.php");
+    $userName = $_SESSION['user'][0]['UserName'];
+    ?>
     <div class="mb-3">
         <a class="btn btn-secondary" href="?page=payment&pid=<?= $_GET['pid'] ?>&search=<?= $_GET['search'] ?>"><i class='bx bx-arrow-back'></i> ກັບຄືນ</a>
     </div>
@@ -262,10 +265,13 @@
                 Promise.all(savePromises)
                     .then((ms) => {
                         //ການບັນທືກ
-                        AlertSave("ບັນທຶກການຖອກເງິນສຳເລັດ", "success");
+                        AlertSave("ບັນທຶກການຖອກເງິນສຳເລັດ", "success", () => {
+                            window.open(`./database/PrintTricket.php?paymentid=${respayment.data}&userprint=<?= $userName ?>`, "_blank");
+                        });
+
                     }).catch((err) => {
                         //ການບັນທືກ
-                        AlertSave("ບັນທຶກການຖອກເງິນຜິດພາດ", "error");
+                        AlertSave("ບັນທຶກການຖອກເງິນຜິດພາດ", "error", () => Swal.close());
                     });
             }
         });
@@ -404,14 +410,14 @@
     }
 
     //Aelrt
-    const AlertSave = (message, icon) => {
+    const AlertSave = (message, icon, callback) => {
         Swal.fire({
             title: "ບັນທຶກ",
             text: message,
             icon: icon
         }).then((result) => {
             if (result.isConfirmed) {
-                location.reload();
+                callback();
             }
         });
     }

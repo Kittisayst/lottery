@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Printer</title>
+    <link rel="shortcut icon" href="../public/lotteryIcon.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <style>
         /* Styles for printing */
         body {
@@ -46,27 +48,66 @@
 
 <?php
 $paymentid = $_GET['paymentid'];
-include("../database/paymentPrinterDetail.php");
-$printer = getTicket();
-//ການຖອກເງິນ
-$cash = (int)$printer['Cash'];
-$transfer = (int)$printer['Transfer'];
-$etc = (int)$printer['Etc'];
-$price = $cash + $transfer + $etc;
-//ການຂາຍ
-$sales = (int)$printer['Sales'];
-$percentate = (int)$printer['Percentage'];
-$award = (int)$printer['Award'];
-$calpercentage = ($sales * $percentate) / 100;
-$amount = $sales - $calpercentage - $award;
-$total = $amount - $price;
-
-
+require_once("../database/connectDB.php");
+$connnect = new connectDB();
+$db = $connnect->getConnection();
+$sql = 'SELECT * FROM tb_paymentlist
+INNER JOIN tb_payment ON tb_paymentlist.paymentID = tb_payment.paymentID
+INNER JOIN tb_financail ON tb_paymentlist.FinancialID = tb_financail.FinancialID
+INNER JOIN tb_lottery ON tb_financail.lotteryID = tb_lottery.lotteryID
+INNER JOIN tb_unit ON tb_financail.UnitID = tb_unit.unitID
+INNER JOIN tb_province ON tb_unit.provinceID = tb_province.pid
+WHERE tb_paymentlist.paymentID=?';
+$stmt = $db->prepare($sql);
+$stmt->execute([$_GET['paymentid']]);
+$result = $stmt->fetchAll();
+$printers = $result;
+$paymentData =  $printers[0];
 
 function FMoney($number)
 {
     return number_format($number);
 }
+
+function getList($row)
+{
+    //ການຖອກເງິນ
+    $withdraw = (int)$row['withdrawn'];
+    $cash = (int)$row['cash'];
+    $transfer = (int)$row['transfer'];
+    $repay = (int)$row['repay'];
+    $etc = (int)$row['etc'];
+    $comment = $row['comment'];
+    $price = $cash + $transfer + $etc;
+    $SaveDate = $row['SaveDate'];
+    //ການຂາຍ
+    $sales = (int)$row['Sales'];
+    $percentate = (int)$row['Percentage'];
+    $award = (int)$row['Award'];
+    $lotteryCorrect = $row['lotteryCorrect'];
+    $calpercentage = ($sales * $percentate) / 100;
+    $amount = $sales - $calpercentage;
+    $money = $withdraw == 0 ? $amount : $amount - $award;
+    $total = $amount - $price;
+    return [
+        'sales' => number_format($sales),
+        'percentate' => $percentate,
+        'award' => number_format($award),
+        "calpercentage" => $calpercentage,
+        "amount" => $money,
+        "total" => number_format($total),
+        "cash" => number_format($cash),
+        "transfer" => number_format($transfer),
+        "repay" => number_format($repay),
+        "etc" => number_format($etc == 0 ? $repay : $etc),
+        "comment" => $comment,
+        "SaveDate" => $SaveDate,
+        "lotteryno" => $row['lotteryNo'],
+        "lotteryCorrect" => $lotteryCorrect,
+        "price" => number_format($price)
+    ];
+}
+
 ?>
 
 <body>
@@ -79,22 +120,22 @@ function FMoney($number)
             <h5 class="fw-bold align-self-center flex-grow-1 pe-5">ໃບບິນຮັບເງິນ</h5>
         </div>
         <div class="d-flex justify-content-between">
-            <span>ສາຂາແຂວງ: <?= $printer['pname'] ?></span>
-            <span>ເລກໜ່ວຍ: <?= $printer['unitID'] ?></span>
+            <span>ສາຂາແຂວງ: <?= $paymentData['pname'] ?></span>
+            <span>ເລກໜ່ວຍ: <?= $paymentData['unitID'] ?></span>
         </div>
         <div class="d-flex justify-content-between">
-            <span>ໜ່ວຍຂາຍ: <?= $printer['unitName'] ?></span>
-            <span>ເລກທີ: <?= $printer['paymentNo'] ?>-<?= $printer['paymentID'] ?></span>
+            <span>ໜ່ວຍຂາຍ: <?= $paymentData['unitName'] ?></span>
+            <span>ເລກທີ: KF<?= $paymentData['paymentID'] ?></span>
         </div>
-        <p>ຈຳນວນເງິນຕ້ອງຖອກ: <?= FMoney($amount) ?> ກີບ</p>
+        <p>ຈຳນວນເງິນຕ້ອງຖອກ: <span id="Totalmoney"></span> ກີບ</p>
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th scope="col" rowspan="2" class="align-middle text-center" style="width: 15px;">ລຳດັບ</th>
                     <th scope="col" colspan="3" class="text-center">ລາຍການຈ່າຍ</th>
+                    <th scope="col" rowspan="2" class="align-middle text-center">ລາງວັນ</th>
                     <th scope="col" rowspan="2" class="align-middle text-center">ເງິນສົດ</th>
                     <th scope="col" rowspan="2" class="align-middle text-center">ເງິນໂອນ</th>
-                    <th scope="col" rowspan="2" class="align-middle text-center">ລາງວັນ</th>
                     <th scope="col" rowspan="2" class="align-middle text-center">ອື່ນໆ</th>
                     <th scope="col" rowspan="2" class="align-middle text-center">ລວມ</th>
                 </tr>
@@ -105,17 +146,26 @@ function FMoney($number)
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td scope="row" class="text-center">1</td>
-                    <td class="text-center"><?= $printer['lotteryNo'] ?></td>
-                    <td class="text-center"><?= date_format(date_create($printer['lotDate']), "d/m/Y") ?></td>
-                    <td class="text-center"><?= $printer['lotteryCorrect'] ?></td>
-                    <td class="text-end"><?= FMoney($cash) ?></td>
-                    <td class="text-end"><?= FMoney($transfer) ?></td>
-                    <td class="text-end"><?= FMoney($award) ?></td>
-                    <td class="text-end"><?= FMoney($etc) ?></td>
-                    <td class="text-end"><?= FMoney($price) ?></td>
-                </tr>
+                <?php
+                $total = 0;
+                foreach ($printers as $row) {
+                    $list = getList($row);
+                    $total += $list['amount'];
+                ?>
+                    <tr>
+                        <td scope="row" class="text-center">1</td>
+                        <td class="text-center"><?= $list['lotteryno'] ?></td>
+                        <td class="text-center"><?= date("d/m/Y", strtotime($list['SaveDate'])) ?></td>
+                        <td class="text-center"><?= $list['lotteryCorrect'] ?></td>
+                        <td class="text-end"><?= $list['award'] ?></td>
+                        <td class="text-end"><?= $list['cash'] ?></td>
+                        <td class="text-end"><?= $list['transfer'] ?></td>
+                        <td class="text-end"><?= $list['etc'] ?></td>
+                        <td class="text-end"><?= number_format($list['amount']) ?></td>
+                    </tr>
+                <?php
+                }
+                ?>
             </tbody>
         </table>
         <div>
@@ -125,10 +175,13 @@ function FMoney($number)
             <p>ເຊັນຜູ້ຈ່າຍ</p>
             <p class="d-flex flex-column justify-content-center align-items-center">
                 <span class="mb-5">ເຊັນຜູ້ຮັບ</span>
-                <span class="mt-3"><?= $_GET['userptring'] ?></span>
+                <span class="mt-3">testing</span>
             </p>
         </div>
     </div>
 </body>
+<script>
+    $("#Totalmoney").text("<?= number_format($total) ?>");
+</script>
 
 </html>
