@@ -1,7 +1,7 @@
 <div class="container content">
     <?php require_once("./views/Alert.php") ?>
     <div class="mb-3">
-        <button class="btn btn-primary " id="btnadd" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class='bx bx-plus-medical'></i> ເພີ່ມງວດທີ</button>
+        <button class="btn btn-primary " id="btnadd" data-bs-toggle="modal" data-bs-target="#addlotery"><i class='bx bx-plus-medical'></i> ເພີ່ມງວດທີ</button>
     </div>
     <table class="table table-bordered">
         <thead class="table-light">
@@ -19,7 +19,7 @@
     </table>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="addlotery" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog  modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

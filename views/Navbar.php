@@ -1,5 +1,6 @@
 <?php
 include_once("./database/Dashboard.php");
+$isaddmint = $_SESSION['user'][0]['userID'] == 1;
 ?>
 <nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #ccc2a4;">
     <div class="container">
@@ -12,16 +13,18 @@ include_once("./database/Dashboard.php");
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="?page=home"><i class='bx bxs-home'></i> ໜ້າຫຼັກ</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class='bx bxs-data'></i> ຈັດການຂໍ້ມູນ
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?page=dataUnit"><i class='bx bxs-user-pin'></i> ຈັດການຂໍ້ມູນໜ່ວຍ</a></li>
-                        <li><a class="dropdown-item" href="?page=province"><i class='bx bxs-buildings'></i> ຈັດການຂໍ້ມູນແຂວງ</a></li>
-                        <li><a class="dropdown-item" href="?page=user"><i class='bx bxs-user-circle'></i> ຈັດການຂໍ້ມູນຜູ້ໃຊ້ງານ</a></li>
-                    </ul>
-                </li>
+                <?php if ($isaddmint) : ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class='bx bxs-data'></i> ຈັດການຂໍ້ມູນ
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?page=dataUnit"><i class='bx bxs-user-pin'></i> ຈັດການຂໍ້ມູນໜ່ວຍ</a></li>
+                            <li><a class="dropdown-item" href="?page=province"><i class='bx bxs-buildings'></i> ຈັດການຂໍ້ມູນແຂວງ</a></li>
+                            <li><a class="dropdown-item" href="?page=user"><i class='bx bxs-user-circle'></i> ຈັດການຂໍ້ມູນຜູ້ໃຊ້ງານ</a></li>
+                        </ul>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class='bx bxs-book-bookmark'></i> ປ້ອນຂໍ້ມູນ
@@ -40,9 +43,9 @@ include_once("./database/Dashboard.php");
                         <i class='bx bxs-report'></i> ລາຍງານ
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-calendar'></i> ລາຍງານການປ້ອນຂໍ້ມູນ</a></li>
-                        <li><a class="dropdown-item" href="?page=reportpayment"><i class='bx bxs-group'></i> ລາຍງານການຖອກເງິນ</a></li>
-                        <li><a class="dropdown-item" href="#"><i class='bx bxs-calculator'></i> ລາຍງານຂໍ້ມູນບັນຊີທັງໝົດ</a></li>
+                        <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-calendar'></i> ລາຍງານປ້ອນຂໍ້ມູນທັງໝົດ</a></li>
+                        <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-group'></i> ລາຍງານປ້ອນຂໍ້ມູນເປັນໜ່ວຍ</a></li>
+                        <li><a class="dropdown-item" href="?page=reportpayment"><i class='bx bx-money-withdraw'></i> ລາຍງານການຖອກເງິນ</a></li>
                     </ul>
                 </li>
             </ul>

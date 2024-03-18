@@ -259,6 +259,7 @@ $scanPath = '/lottery/views/Scaner.php';
         frmlottery.on("submit", (e) => {
             e.preventDefault();
             const formData = frmlottery.serialize();
+            console.log(formData);
             $.post("./api/FinancialAPI.php?api=create&id=<?= $_GET['lotid'] ?>", formData, (res) => {
                 Swal.fire({
                     position: "center",

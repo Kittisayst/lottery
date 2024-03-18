@@ -29,7 +29,7 @@ if ($login->isLogin()) {
     new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
     new Router("history", "./views/HistoryPayment.php", "ປະຫວັດການຖອກເງິນ");
     //Reports
-    new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນ");
+    new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນທັງໝົດ");
     new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");
     // Debt
     new Router("debt", "./views/Debt.php", "ລາຍການທວງໜີ້");

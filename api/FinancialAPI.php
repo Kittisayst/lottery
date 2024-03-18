@@ -44,11 +44,11 @@ function create()
         $conn->createJson("warning", "ທ່ານໄດ້ປ້ອນຂໍ້ມູນໜ່ວຍນີ້ແລ້ວ", false);
     } else {
         $connect = $conn->getConnection();
-        $sql = "INSERT INTO tb_financail VALUES(?,?,?,?,?,?,?,?,?)";
+        $sql = "INSERT INTO tb_financail VALUES(?,?,?,?,?,?,?,?,?,?)";
         $stm = $connect->prepare($sql);
         $sales = str_replace(',', '', $_POST['Sales']);
         $Award = str_replace(',', '', $_POST['Award']);
-        $Data = [null, $_POST['unitID'], $_GET['id'], $sales, $_POST['Percentage'], $Award, $_POST['Awardno'], $_POST['SaveDate'], $_POST['userID']];
+        $Data = [null, $_POST['unitID'], $_GET['id'], $sales, $_POST['Percentage'], $Award, $_POST['Awardno'], $_POST['SaveDate'], $_POST['userID'], 0];
         $stm->execute($Data);
         if ($stm) {
             $conn->createJson("success", "ບັນທຶກຂໍ້ມູນສຳເລັດ", true);

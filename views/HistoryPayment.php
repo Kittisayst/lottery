@@ -2,7 +2,8 @@
     <?php require_once("./views/Alert.php") ?>
     <div class="mb-3 d-flex justify-content-between">
         <div class="me-auto">
-            <button class="btn btn-secondary" id="btnback"><i class='bx bx-arrow-back'></i> ກັບຄືນ</button>
+            <a class="btn btn-secondary" 
+            href="?page=payment&unitid=<?=$_GET['unitid']?>&pid=<?=$_GET['pid']?>&search=<?=$_GET['search']?>"><i class='bx bx-arrow-back'></i> ກັບຄືນ</a>
         </div>
         <div>
             <input type="search" class="form-control" name="search" id="txtSearch" placeholder="ຄົ້ນຫາ">
@@ -36,7 +37,4 @@
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
-    $("#btnback").click(() => {
-        history.back();
-    })
 </script>
