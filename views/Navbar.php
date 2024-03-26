@@ -1,6 +1,6 @@
 <?php
 include_once("./database/Dashboard.php");
-$isaddmint = $_SESSION['user'][0]['userID'] == 1;
+$isaddmint = $_COOKIE['user'] == 1;
 ?>
 <nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #ccc2a4;">
     <div class="container">
@@ -80,6 +80,7 @@ $isaddmint = $_SESSION['user'][0]['userID'] == 1;
 <script>
     $("#btnlogout").click(() => {
         $.get("./api/userAPI.php?api=getlogout", (res, mes) => {
+            console.log(res);
             if (res.state) {
                 location.reload();
             }

@@ -49,6 +49,8 @@
 <?php
 $paymentid = $_GET['paymentid'];
 require_once("../database/connectDB.php");
+require_once("../database/user.php");
+$user = getUserPrint($_COOKIE['user']);
 $connnect = new connectDB();
 $db = $connnect->getConnection();
 $sql = 'SELECT * FROM tb_paymentlist
@@ -175,7 +177,7 @@ function getList($row)
             <p>ເຊັນຜູ້ຈ່າຍ</p>
             <p class="d-flex flex-column justify-content-center align-items-center">
                 <span class="mb-5">ເຊັນຜູ້ຮັບ</span>
-                <span class="mt-3">testing</span>
+                <span class="mt-3"><?=$user['UserName']?></span>
             </p>
         </div>
     </div>

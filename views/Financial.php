@@ -1,5 +1,9 @@
 <div class="container content">
-    <?php require_once("./views/Alert.php") ?>
+    <?php 
+    require_once("./views/Alert.php");
+    require_once("./database/user.php");
+    $user = getUser($_COOKIE['user']);
+    ?>
     <h4 class="text-center mb-3">ງວດທີ: <span id="mslotNo"></span> ວັນທີ: <span id="mslotDate"></span></h4>
     <form id="formsearch">
         <div class="d-flex justify-content-end gap-4 mb-3">
@@ -134,7 +138,7 @@ $scanPath = '/lottery/views/Scaner.php';
             html: `
                         <form class="px-2" id="frmlottery">
                             <input type="text" name="unitID" value="${unit['unitID']}" hidden>
-                            <input type="text" name="userID" value="<?php print_r($_SESSION['user'][0]['userID']) ?>" hidden>
+                            <input type="text" name="userID" value="<?php print_r($user['userID']) ?>" hidden>
                             <div class="d-flex gap-2 mb-3">
                                 <div class="w-50">
                                     <label for="" class="form-label w-100 text-start">ງວດທີ</label>
@@ -304,7 +308,7 @@ $scanPath = '/lottery/views/Scaner.php';
             html: `
                         <form class="px-2" id="frmlottery">
                             <input type="text" name="unitID" value="${financial['unitID']}" hidden>
-                            <input type="text" name="userID" value="<?php print_r($_SESSION['user'][0]['userID']) ?>" hidden>
+                            <input type="text" name="userID" value="<?php print_r($user['userID']) ?>" hidden>
                             <div class="d-flex gap-2 mb-3">
                                 <div class="w-50">
                                     <label for="" class="form-label w-100 text-start">ງວດທີ</label>

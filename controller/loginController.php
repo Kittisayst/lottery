@@ -1,15 +1,10 @@
 <?php
-session_start();
 class LoginController
 {
 
     public function isLogin()
     {
-        return isset($_SESSION['user']);
-    }
-
-    public function Login($user, $pass)
-    {
+        return isset($_COOKIE["user"]);
     }
 
     public function view()

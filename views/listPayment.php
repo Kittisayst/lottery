@@ -2,7 +2,9 @@
     <?php require_once("./views/Alert.php") ?>
     <?php
     include_once("./database/getPaymentNo.php");
-    $userName = $_SESSION['user'][0]['UserName'];
+    include_once("./database/user.php");
+    $user = getUser($_COOKIE['user']);
+    $userName = $user['UserName'];
     ?>
     <div class="mb-3">
         <a class="btn btn-secondary" href="?page=payment&pid=<?= $_GET['pid'] ?>&search=<?= $_GET['search'] ?>"><i class='bx bx-arrow-back'></i> ກັບຄືນ</a>
@@ -16,7 +18,7 @@
         <form class="border rounded-2 bg-white col-5 py-2 px-2" id="savePaylist">
             <div class="d-flex gap-2 mb-3">
                 <input type="text" value="<?= getBillNo(); ?>" name="billno" hidden>
-                <input type="text" value="<?php print_r($_SESSION['user'][0]['userID']) ?>" id="txtUserID" name="UserID" hidden>
+                <input type="text" value="<?php print_r($user['userID']) ?>" id="txtUserID" name="UserID" hidden>
                 <div class="w-100">
                     <label class="form-label">ເລກທີ</label>
                     <input type="text" class="form-control" placeholder="ເລກທີ" value="KF<?= getBillNo(); ?>" disabled>

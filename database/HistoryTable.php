@@ -1,7 +1,9 @@
 <?php
 if (isset($_GET['unitid'])) {
     require_once("./database/connectDB.php");
-    $userName = $_SESSION['user'][0]['UserName'];
+    require_once("./database/user.php");
+    $user = getUser($_COOKIE['user']);
+    $userName = $user['UserName'];
     $connnect = new connectDB();
     $db = $connnect->getConnection();
     $sql = "SELECT * FROM tb_paymentlist

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-if (isset($_GET['api'])) {
+if (isset ($_GET['api'])) {
     $api = $_GET['api'];
     switch ($api) {
         case 'getusers':
@@ -32,7 +32,7 @@ if (isset($_GET['api'])) {
 
 function createUser(array $users)
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "INSERT INTO tb_user VALUES(?,?,?,?,?)";
@@ -42,8 +42,7 @@ function createUser(array $users)
 
 function getLogin($user, $password)
 {
-    session_start();
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT * FROM tb_user WHERE User=? AND Password=?";
@@ -51,8 +50,10 @@ function getLogin($user, $password)
     $stm->execute([$user, $password]);
     $result = $stm->fetchAll();
     if ($result) {
-        $conn->createJson($result, "ເຂົ້າສູ່ລະບົບສຳເລັດ", true);
-        $_SESSION['user'] = $result;
+        $expiration_time = time() + 3600;
+        // Set the cookie with the calculated expiration time
+        setcookie("user", $result[0]['userID'], $expiration_time, "/");
+        $conn->createJson($_COOKIE['user'], "ເຂົ້າສູ່ລະບົບສຳເລັດ", isset($_COOKIE['user']));
     } else {
         $conn->createJson($result, "ຊື່ຜູ້ໃຊ້ງານ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!", false);
     }
@@ -60,16 +61,15 @@ function getLogin($user, $password)
 
 function getlogout()
 {
-    session_start();
-    session_destroy();
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
-    $conn->createJson(0, "logout", isset($_SESSION['user']));
+    setcookie("user", '55', time() - 3600, "/");
+    $conn->createJson(0, "logout", true);
 }
 
 function getUsers()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT * FROM tb_user";
@@ -80,7 +80,7 @@ function getUsers()
 
 function create()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "INSERT INTO tb_user VALUES(?,?,?,?,?)";
@@ -96,7 +96,7 @@ function create()
 
 function update()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     if ($_POST['Password'] != "") {
@@ -118,7 +118,7 @@ function update()
 
 function delete()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "DELETE FROM tb_user WHERE userID=?";

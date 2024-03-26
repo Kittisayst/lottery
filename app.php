@@ -1,12 +1,12 @@
 <?php
-require_once("./router/routes.php");
-require_once("./controller/loginController.php");
-include_once("./router/startRoute.php");
+require_once ("./router/routes.php");
+require_once ("./controller/loginController.php"); // use start cookie
+include_once ("./router/startRoute.php");
 
 // Start a new route
 $login = new LoginController();
 if ($login->isLogin()) {
-    include_once("./views/Navbar.php");
+    include_once ("./views/Navbar.php");
     new Router('home', './views/Home.php', 'ລະບົບໂຮງຫວຍ');
     new Router('unit', './views/Unit.php', "ໜ່ວຍແຕ່ລະແຂວງ");
     new Router("dataUnit", './views/DataUnit.php', "ຂໍ້ມູນໜ່ວຍ");
@@ -35,7 +35,7 @@ if ($login->isLogin()) {
     new Router("debt", "./views/Debt.php", "ລາຍການທວງໜີ້");
     new Router("financialhistory", "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");
     //footer
-    require_once("./views/Footer.php");
+    require_once ("./views/Footer.php");
 } else {
     $login->view();
 }
