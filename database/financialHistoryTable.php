@@ -1,6 +1,6 @@
 <?php
 if (isset($_GET['unitid'])) {
-    require_once("./database/connectDB.php");
+    require_once ("./database/connectDB.php");
     $connnect = new connectDB();
     $db = $connnect->getConnection();
     $sql = "SELECT * FROM tb_financail
@@ -13,24 +13,54 @@ if (isset($_GET['unitid'])) {
     $state = $stmt->rowCount() > 0;
     $index = 1;
     if ($state) {
+        $sumSale = 0;
+        $sumCalpercent = 0;
+        $sumAward = 0;
+        $sumAmount = 0;
         foreach ($result as $row) {
             $Moneys = getMoney($row);
-?>
+            $sumSale += $Moneys['Sales'];
+            $sumCalpercent += $Moneys['CalPercent'];
+            $sumAward += $Moneys['Award'];
+            $sumAmount += $Moneys['Amount'];
+            ?>
             <tr>
-                <td class="text-center"><?= $index++ ?></td>
-                <td class="text-center"><?= $row['lotteryNo'] ?></td>
-                <td class="text-center"><?= date("d/m/Y", strtotime($row['lotDate'])) ?></td>
-                <td class="text-end"><?= $Moneys['Sales'] ?></td>
-                <td class="text-center"><?= $Moneys['Percentage'] ?>%</td>
-                <td class="text-end"><?= $Moneys['CalPercent'] ?></td>
-                <td class="text-end"><?= $Moneys['Award'] ?></td>
-                <td class="text-end"><?= $Moneys['Amount'] ?></td>
-                <td class="text-center col-1">
-                    <button class="btn btn-sm btn-primary"><i class='bx bx-file'></i> ໃບທວງໜີ້</button>
+                <td class="text-center">
+                    <?= $index++ ?>
+                </td>
+                <td class="text-center">
+                    <?= $row['lotteryNo'] ?>
+                </td>
+                <td class="text-center">
+                    <?= date("d/m/Y", strtotime($row['lotDate'])) ?>
+                </td>
+                <td class="text-center">
+                    <?= $Moneys['Percentage'] ?>%
+                </td>
+                <td class="text-end">
+                    <?= number_format($Moneys['Sales']) ?>
+                </td>
+                <td class="text-end">
+                    <?= number_format($Moneys['CalPercent']) ?>
+                </td>
+                <td class="text-end">
+                    <?= number_format($Moneys['Award']) ?>
+                </td>
+                <td class="text-end">
+                    <?= number_format($Moneys['Amount']) ?>
                 </td>
             </tr>
-<?php
+            <?php
         }
+        $formatmoney = [number_format($sumSale), number_format($sumCalpercent), number_format($sumAward), number_format($sumAmount)];
+        echo "
+        <tr>
+            <td colspan='4' class='text-center'>ລ່ວມເງິນທັງໝົດ</td>
+            <td class='text-end'>$formatmoney[0]</td>
+            <td class='text-end'>$formatmoney[1]</td>
+            <td class='text-end'>$formatmoney[2]</td>
+            <td class='text-end'>$formatmoney[3]</td>
+        </tr>";
     } else {
         echo "<tr><td colspan='8' class='text-center'>ບໍ່ພົບຂໍ້ມູນການຖອກເງິນ</td></tr>";
     }
@@ -38,18 +68,18 @@ if (isset($_GET['unitid'])) {
 
 function getMoney($row)
 {
-    $sales = (int)$row['Sales'];
-    $percentage = (int)$row['Percentage'];
-    $award = (int)$row['Award'];
-    $isWithDraw = (int)$row['withdrawn'] == 0;
+    $sales = (int) $row['Sales'];
+    $percentage = (int) $row['Percentage'];
+    $award = (int) $row['Award'];
+    $isWithDraw = (int) $row['withdrawn'] == 0;
     $calpercentage = ($sales * $percentage) / 100;
     $total = $sales - $calpercentage;
     $amount = $isWithDraw ? $total : $total - $award;
     return [
-        "Sales" => number_format($sales),
+        "Sales" => $sales,
         "Percentage" => $percentage,
-        "Award" => number_format($award),
-        "CalPercent" => number_format($calpercentage),
-        "Amount" => number_format($amount)
+        "Award" => $award,
+        "CalPercent" => $calpercentage,
+        "Amount" => $amount
     ];
 }

@@ -1,7 +1,7 @@
 <?php
 require_once ("./router/routes.php");
 require_once ("./controller/loginController.php"); // use start cookie
-include_once ("./router/startRoute.php");
+require_once ("./router/startRoute.php");
 
 // Start a new route
 $login = new LoginController();
@@ -19,6 +19,7 @@ if ($login->isLogin()) {
     //unit
     new Router("formUnit", "./views/form/unit_form.php", "ເພີ່ມຂໍ້ມູນໜ່ວຍ");
     new Router("editunit", "./views/form/edit_unit_form.php", "ແກ້ໄຂຂໍ້ມູນໜ່ວຍ");
+    new Router("lotmachine", "./views/lotmachine.php", "ຈັດການລະຫັດຜູ້ຂາຍ");
     //user
     new Router("createuser", "./views/form/user_form.php", "ເພີ່ມຜູ້ໃຊ້ງານ");
     new Router("edituser", "./views/form/edit_user_form.php", "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານ");
@@ -28,6 +29,7 @@ if ($login->isLogin()) {
     new Router("payment", "./views/payment.php", "ເລືອກໜ່ວຍຖອກເງິນ");
     new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
     new Router("history", "./views/HistoryPayment.php", "ປະຫວັດການຖອກເງິນ");
+    new Router("scanpayment","./views/ScanPDF.php", "ອ່ານ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
     //Reports
     new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນທັງໝົດ");
     new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");

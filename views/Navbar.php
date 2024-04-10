@@ -20,6 +20,7 @@ $isaddmint = $_COOKIE['user'] == 1;
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="?page=dataUnit"><i class='bx bxs-user-pin'></i> ຈັດການຂໍ້ມູນໜ່ວຍ</a></li>
+                            <li><a class="dropdown-item" href="?page=lotmachine"><i class='bx bxs-book-reader' ></i> ຈັດການລະຫັດຜູ້ຂາຍ</a></li>
                             <li><a class="dropdown-item" href="?page=province"><i class='bx bxs-buildings'></i> ຈັດການຂໍ້ມູນແຂວງ</a></li>
                             <li><a class="dropdown-item" href="?page=user"><i class='bx bxs-user-circle'></i> ຈັດການຂໍ້ມູນຜູ້ໃຊ້ງານ</a></li>
                         </ul>
@@ -33,6 +34,7 @@ $isaddmint = $_COOKIE['user'] == 1;
                         <li><a class="dropdown-item" href="?page=lottery"><i class='bx bxs-notepad'></i> ງວດທີເລກ</a></li>
                         <li><a class="dropdown-item" href="?page=selectlot"><i class='bx bx-money'></i> ປ້ອນຂໍ້ມູນ</a></li>
                         <li><a class="dropdown-item" href="?page=payment"><i class='bx bxs-user-badge'></i> ຖອກເງິນ</a></li>
+                        <li><a class="dropdown-item" href="?page=scanpayment"><i class='bx bxs-file' ></i> ອ່ານ PDF ຍອດຂາຍ</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">

@@ -53,7 +53,7 @@ function getLogin($user, $password)
         $expiration_time = time() + 3600;
         // Set the cookie with the calculated expiration time
         setcookie("user", $result[0]['userID'], $expiration_time, "/");
-        $conn->createJson($_COOKIE['user'], "ເຂົ້າສູ່ລະບົບສຳເລັດ", isset($_COOKIE['user']));
+        $conn->createJson($result[0]['userID'], "ເຂົ້າສູ່ລະບົບສຳເລັດ", true);
     } else {
         $conn->createJson($result, "ຊື່ຜູ້ໃຊ້ງານ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!", false);
     }

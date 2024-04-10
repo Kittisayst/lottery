@@ -1,4 +1,8 @@
 <?php
 if (!isset($_GET['page'])) {
-    header("location:?page=home");
+    ?>
+    <script>
+        location.href = "?page=home";
+    </script>
+    <?php
 }

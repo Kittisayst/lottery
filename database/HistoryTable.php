@@ -9,7 +9,7 @@ if (isset($_GET['unitid'])) {
     $sql = "SELECT * FROM tb_paymentlist
     INNER JOIN tb_financail ON tb_paymentlist.FinancialID = tb_financail.FinancialID
     INNER JOIN tb_unit ON tb_financail.UnitID = tb_unit.unitID
-    WHERE tb_unit.unitID=? GROUP BY paymentID ORDER BY PaylistID DESC";
+    WHERE tb_unit.unitID=? ORDER BY PaylistID DESC";
     $stmt = $db->prepare($sql);
     $stmt->execute([$_GET['unitid']]);
     $result = $stmt->fetchAll();

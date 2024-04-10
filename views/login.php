@@ -36,9 +36,8 @@
         e.preventDefault();
         $fromData = $('#frmlogin').serialize();
         $.post(`./api/userAPI.php?api=getlogin`, $fromData, (res, mes) => {
-            console.log(res);
             if (res.state) {
-                location.reload(true);
+                location.reload();
             } else {
                 $("#ms").html(`<span class="text-danger">${res.message}</span>`);
             }

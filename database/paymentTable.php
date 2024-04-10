@@ -6,7 +6,7 @@ if (isset($_GET['search'])) {
 }
 
 if (isset($_GET['pid']) && isset($_GET['lotid'])) {
-    require_once("./database/connectDB.php");
+    require_once ("./database/connectDB.php");
     $connnect = new connectDB();
     $db = $connnect->getConnection();
     $sql = 'SELECT * FROM tb_financail
@@ -20,23 +20,33 @@ if (isset($_GET['pid']) && isset($_GET['lotid'])) {
     $index = 1;
     if ($result) {
         foreach ($result as $row) {
-            $Sale = (int)$row['Sales'];
-            $Percentage = (int)$row['Percentage'];
+            $Sale = (int) $row['Sales'];
+            $Percentage = (int) $row['Percentage'];
             $calPercent = ($Sale * $Percentage) / 100;
-            $award = (int)$row['Award'];
+            $award = (int) $row['Award'];
             $total = $Sale - $calPercent - $award;
-            $payment = Calculator($row['FinancialID']);
+            $payments = Calculator($row['FinancialID']);
             $Amount = $total - $payment;
             $formatTotal = number_format($Amount);
-?>
-            <tr id="<?=$row['FinancialID']?>">
-                <td class='text-center'><?= $index++ ?></td>
-                <td><?= $row['lotteryNo'] ?></td>
-                <td><?= $row['pname'] ?></td>
-                <td><?= $row['unitName'] ?></td>
-                <td><?= $formatTotal ?></td>
+            ?>
+            <tr id="<?= $row['FinancialID'] ?>">
+                <td class='text-center'>
+                    <?= $index++ ?>
+                </td>
+                <td>
+                    <?= $row['lotteryNo'] ?>
+                </td>
+                <td>
+                    <?= $row['pname'] ?>
+                </td>
+                <td>
+                    <?= $row['unitName'] ?>
+                </td>
+                <td>
+                    <?= $formatTotal ?>
+                </td>
             </tr>
-<?php
+            <?php
         }
     } else {
         echo '<td colspan="5" class="text-center">---- ບໍ່ພົບຂໍ້ມູນການຖອກເງິນ ----</td>';
@@ -47,7 +57,7 @@ if (isset($_GET['pid']) && isset($_GET['lotid'])) {
 
 function Calculator($financialID)
 {
-    require_once("./database/connectDB.php");
+    require_once ("./database/connectDB.php");
     $connnect = new connectDB();
     $db = $connnect->getConnection();
     $sql = "SELECT * FROM tb_payment WHERE FinancialID=?";
@@ -57,7 +67,7 @@ function Calculator($financialID)
     if ($result) {
         $sum = 0;
         foreach ($result as $row) {
-            $sum += (int)$row['Cash'] + (int)$row['Transfer'] + (int)$row['Etc'];
+            $sum += (int) $row['Cash'] + (int) $row['Transfer'] + (int) $row['Etc'];
         }
         return $sum;
     } else {

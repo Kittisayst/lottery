@@ -16,10 +16,10 @@ function getDebtModalDialog()
     require_once("./database/connectDB.php");
     $connnect = new connectDB();
     $db = $connnect->getConnection();
-    $sql = "SELECT * FROM tb_financail
-    INNER JOIN tb_unit ON tb_financail.UnitID = tb_unit.unitID
+    $sql = "SELECT * FROM tb_financail AS fn
+    INNER JOIN tb_unit ON fn.UnitID = tb_unit.unitID
     INNER JOIN tb_province ON tb_unit.provinceID = tb_province.pid
-    WHERE state=0 GROUP BY tb_financail.UnitID ORDER BY FinancialID DESC LIMIT 50";
+    WHERE state=0 GROUP BY fn.UnitID,fn.FinancialID ORDER BY fn.FinancialID DESC LIMIT 50";
     $stmt = $db->prepare($sql);
     $stmt->execute();
     $resutl = $stmt->fetchAll();
