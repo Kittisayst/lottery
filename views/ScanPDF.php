@@ -62,8 +62,7 @@
                     pdfCode.push(item[1]);
                 });
             });
-            // console.log(apiCode);
-            // console.log(pdfCode);
+
             const sameCode = compareArrays(pdfCode, apiCode);
             $("#tableData").html("");
             sellCodes.forEach(datas => {
@@ -131,6 +130,7 @@
             // Once all pages are processed, display or process the extracted text
             Promise.all(pagesPromises).then(function (pagesText) {
                 var extractedText = pagesText.join(' ');
+                console.log(extractedText);
                 parseTableFromText(extractedText);
             }).catch(function (error) {
                 console.error('Error extracting text:', error);

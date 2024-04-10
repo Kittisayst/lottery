@@ -1,5 +1,5 @@
 <div class="container-fluid container-lg content">
-    <?php require("./views/Alert.php") ?>
+    <?php require ("./views/Alert.php") ?>
     <form class="d-flex justify-content-between my-2 gap-2" id="fromSearch">
         <div class="me-auto">
             <a class="btn btn-primary" href="?page=formUnit"><i class='bx bxs-plus-circle'></i> ເພີ່ມໜ່ວຍ</a>
@@ -7,12 +7,12 @@
         <div>
             <select class="form-select" aria-label="Default select example" name="provinceID">
                 <?php
-                include("./database/Province_Options.php");
+                include ("./database/Province_Options.php");
                 ?>
             </select>
         </div>
         <div>
-            <input type="search" name="search" class="form-control" placeholder="ຄົ້ນຫາ">
+            <input type="search" name="search" id="txtsearch" class="form-control" placeholder="ຄົ້ນຫາ">
         </div>
         <div>
             <button type="submit" class="btn btn-primary">ຄົ້ນຫາ</button>
@@ -46,6 +46,13 @@
             UnitDataTable(units);
         })
     })
+
+    $("#txtsearch").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#tbdata tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
     // Onload show unit All
     const show = () => {
         $.get(`./api/unitAPI.php?api=getunits`, (res) => {
@@ -61,7 +68,7 @@
         units.forEach((unit, index) => {
             const tr = $("<tr></tr>");
             const rowmoneyState = $("<td class='text-center'></td>");
-            const checkState = $(`<input type="checkbox" class="form-check-input" name="moneyState" id="moneyState" ${unit['withdrawn']==1?"checked":""}>`);
+            const checkState = $(`<input type="checkbox" class="form-check-input" name="moneyState" id="moneyState" ${unit['withdrawn'] == 1 ? "checked" : ""}>`);
             const buttondelete = $(`<button class="btn btn-danger btn-sm"><i class='bx bxs-trash' ></i></button>`);
             const action = $(`
                     <td class="col-2 text-center">
@@ -69,7 +76,7 @@
                     </td>`);
             action.append(buttondelete);
             tr.html(`
-                    <th scope="row" class="text-center">${index+1}</th>
+                    <th scope="row" class="text-center">${index + 1}</th>
                     <td>${unit['pname']}</td>
                     <td>${unit['unitName']}</td>
                     <td class="text-center">${unit['Percentage']}%</td>
@@ -80,7 +87,7 @@
             tr.append(action);
             // Change state
             const isChecked = checkState.prop('checked');
-            checkState.on('change', function() {
+            checkState.on('change', function () {
                 UpdateState(unit['unitID']);
             });
             // Delete Unit
