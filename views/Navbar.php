@@ -2,7 +2,7 @@
 include_once("./database/Dashboard.php");
 $isaddmint = $_COOKIE['user'] == 1;
 ?>
-<nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #ccc2a4;">
+<nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="background-color: #ccc2a4;" id="navid">
     <div class="container">
         <a class="navbar-brand" href="?page=home"><img src="./public/loterry.png" alt="nav logo" width="40px"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,8 @@ $isaddmint = $_COOKIE['user'] == 1;
                         <li><a class="dropdown-item" href="?page=lottery"><i class='bx bxs-notepad'></i> ງວດທີເລກ</a></li>
                         <li><a class="dropdown-item" href="?page=selectlot"><i class='bx bx-money'></i> ປ້ອນຂໍ້ມູນ</a></li>
                         <li><a class="dropdown-item" href="?page=payment"><i class='bx bxs-user-badge'></i> ຖອກເງິນ</a></li>
-                        <li><a class="dropdown-item" href="?page=scanpayment"><i class='bx bxs-file' ></i> ອ່ານ PDF ຍອດຂາຍ</a></li>
+                        <li><a class="dropdown-item" href="?page=salepdf"><i class='bx bxs-file' ></i> ຂໍ້ມູນ PDF ຍອດຂາຍ</a></li>
+                        <li><a class="dropdown-item" href="?page=scanpdflottery"><i class="bi bi-file-earmark-pdf-fill"></i> ອ່ານ PDF ບິນຖືກລາງວັນ</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -48,6 +49,7 @@ $isaddmint = $_COOKIE['user'] == 1;
                         <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-calendar'></i> ລາຍງານປ້ອນຂໍ້ມູນທັງໝົດ</a></li>
                         <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-group'></i> ລາຍງານປ້ອນຂໍ້ມູນເປັນໜ່ວຍ</a></li>
                         <li><a class="dropdown-item" href="?page=reportpayment"><i class='bx bx-money-withdraw'></i> ລາຍງານການຖອກເງິນ</a></li>
+                        <li><a class="dropdown-item" href="?page=reportsalepdf"><i class="bi bi-file-pdf-fill"></i> ລາຍງານ PDF ການຂາຍ</a></li>
                     </ul>
                 </li>
             </ul>

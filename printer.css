@@ -1,0 +1,74 @@
+/* Styles for printing */
+.print-p {
+    padding: 1rem;
+}
+
+.fs-h {
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+.fs-thead {
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+.content {
+    /* Styles for the content to be printed */
+    color: black;
+    /* Add more styles as needed */
+}
+
+/* Hide elements not to be printed */
+.no-print {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 2.5mm;
+        /* Adjust margins as needed */
+    }
+
+    * {
+        font-family: "Phetsarath OT", sans-serif;
+        font-size: 12pt;
+    }
+    
+    .print-p {
+        padding: 0;
+    }
+
+    body {
+        margin: 0;
+        padding: 10mm;
+        /* Add padding to prevent content from getting too close to the edges */
+    }
+
+    .fs-h {
+        font-size: 14pt;
+        font-weight: bold;
+    }
+
+    .fs-thead {
+        font-size: 7pt;
+        font-weight: bold;
+    }
+
+    .fs-body {
+        font-size: 6pt;
+    }
+
+    #navid {
+        display: none;
+    }
+
+    footer {
+        display: none;
+    }
+
+    #btnPrint {
+        display: none;
+    }
+}

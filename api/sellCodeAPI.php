@@ -19,6 +19,9 @@ if (isset($_GET['api'])) {
         case 'getbyid':
             selectByID();
             break;
+        case 'getbyunitid':
+            selectByUnitID();
+            break;
         default:
             # code...
             break;
@@ -74,6 +77,22 @@ function update()
         $conn->createJson("success", "ແກ້ໄຂຂໍ້ມູນສຳເລັດ", true);
     } else {
         $conn->createJson($data, "ບັນທຶກຜິດພາດ", false);
+    }
+}
+
+function selectByUnitID()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $db = $conn->getConnection();
+    $sql = "SELECT * FROM tb_machine WHERE UnitID=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$_GET['id']]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($result) {
+        $conn->createJson($result, "ບັນທຶກສຳເລັດ", true);
+    } else {
+        $conn->createJson(0, "ບັນທຶກຜິດພາດ", false);
     }
 }
 

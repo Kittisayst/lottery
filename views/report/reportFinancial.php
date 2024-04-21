@@ -71,32 +71,6 @@
 
 </div>
 <script>
-    // const calculatorlot = (sales, percentage, award, withdraw) => {
-    //     const isAward = withdraw == "0";
-    //     const fsales = Number(sales);
-    //     const fpercentage = Number(percentage);
-    //     const faward = Number(award);
-    //     const calpercent = (fsales * fpercentage) / 100;
-    //     const caltotal = fsales - calpercent;
-    //     const amout = isAward ? caltotal : caltotal - faward;
-    //     return {
-    //         percentageMoney: calpercent,
-    //         totalMoney: caltotal,
-    //         amoutMoney: amout
-    //     };
-    // };
-    // const jFormatMoney = (money) => {
-    //     const formattedValue = new Intl.NumberFormat('en-US').format(money);
-    //     return formattedValue;
-    // }
-
-    // function jDateformat(inputDate) {
-    //     var dateParts = inputDate.split("-");
-    //     var formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
-    //     return formattedDate;
-    // }
-</script>
-<script>
     const tableData = $("#tabledata");
 
     const isExport = () => {
@@ -129,46 +103,6 @@
         return formattedDateTime;
     }
 
-    // const CreateTableReport = (financials) => {
-    //     tableData.html("");
-    //     let sumSales = 0;
-    //     let sumPercent = 0;
-    //     let sumAward = 0;
-    //     let sumTotal = 0;
-    //     financials.forEach((fc, index) => {
-    //         const calculator = calculatorlot(fc.Sales, fc.Percentage, fc.Award, fc.withdrawn);
-    //         sumSales += Number(fc.Sales);
-    //         sumPercent += Number(calculator.percentageMoney);
-    //         sumAward += Number(fc.Award);
-    //         sumTotal += Number(calculator.amoutMoney);
-
-    //         const tr = $("<tr></tr>");
-    //         tr.html(`
-    //         <td class="text-center">${index+1}</td>
-    //         <td class="text-center">${fc.lotteryNo}</td>
-    //         <td class="text-center">${jDateformat(fc.lotDate)}</td>
-    //         <td class="text-center">${fc.unitName}</td>
-    //         <td class="text-end">${jFormatMoney(fc.Sales)}</td>
-    //         <td class="text-end">${jFormatMoney(calculator.percentageMoney)}</td>
-    //         <td class="text-end">${jFormatMoney(fc.Award)}</td>
-    //         <td class="text-end">${jFormatMoney(calculator.amoutMoney)}</td>
-    //         `);
-    //         tableData.append(tr);
-    //     });
-    //     const tr = $("<tr></tr>");
-    //     tr.html(`
-    //         <td class="text-center" colspan="4">ລວມ</td>
-    //         <td class="text-end">${jFormatMoney(sumSales)}</td>
-    //         <td class="text-end">${jFormatMoney(sumPercent)}</td>
-    //         <td class="text-end">${jFormatMoney(sumAward)}</td>
-    //         <td class="text-end">${jFormatMoney(sumTotal)}</td>
-    //         `);
-    //     tableData.append(tr);
-    //     isExport();
-    // }
-
-
-
     $("#cbProvince").on("change", (e) => {
         const provinceID = e.target.value;
         $.get(`./api/unitAPI.php?api=unitbyprovinid&pid=${provinceID}`, (res, err) => {
@@ -193,14 +127,5 @@
         const unit = fromData[3];
         const url = `?page=reportfinancial&${startDate.name}=${startDate.value}&${endDate.name}=${endDate.value}&${province.name}=${province.value}&${unit.name}=${unit.value}`;
         location.href = url;
-        // $.post(`./api/FinancialAPI.php?api=getReprotFinancialSearch`, fromData, (res) => {
-        //     const financials = res.data;
-        //     if (financials.length > 0) {
-        //         CreateTableReport(financials);
-        //     } else {
-        //         tableData.html(`<tr class="text-center"><td colspan="8">..... ບໍ່ພົບຂໍ້ມູນ.....</td></tr>`);
-        //         isExport();
-        //     }
-        // });
     })
 </script>
