@@ -24,8 +24,12 @@ foreach ($result as $row) {
         <td>$FileName</td>
         <td>$fileSize KB</td>
         <td class='d-flex gap-2'>
-            <a href='?page=scanpayment&id=$salePDFID&limit=100&pagination=1' class='btn btn-primary btn-sm col'>ສະແດງ</a>
-            <button class='btn btn-danger btn-sm col'>ລົບ</button>
+            <a href='?page=scanpayment&id=$salePDFID&limit=100&pagination=1' class='btn btn-success btn-sm col'>
+                <i class='bi bi-eye-fill'></i> ສະແດງ
+            </a>
+            <button class='btn btn-danger btn-sm col' onclick='deletePDF($salePDFID)'>
+                <i class='bi bi-trash3-fill'></i > ລົບ
+            </button>
         </td>
     </tr>
     ";

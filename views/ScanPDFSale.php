@@ -65,7 +65,16 @@
 
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination" id="pagilist">
+
+            </ul>
+        </nav>
+    </div>
+
 </div>
+
 <script>
     const arrDataPDF = [];
 
@@ -82,6 +91,7 @@
         $("#frmSave").submit((e) => {
             e.preventDefault();
             $("#btnSave").attr("disabled", "disabled");
+
             if (arrDataPDF.length > 0) {
                 const frm = $("#frmSave").serializeArray();
                 const fileInput = document.getElementById('txtpdf');
@@ -115,7 +125,7 @@
                         };
                         //send to api
                         save(createData);
-                        $("#btnSave").removeAttr("disabled");
+
                     }
                     //show progress bar
                     showProgressBar(arrDataPDF.length, index + 1);
@@ -146,6 +156,8 @@
                 Swal.fire({
                     title: res.message,
                     icon: res.data
+                }).finally(() => {
+                    $("#btnSave").removeAttr("disabled");
                 });
             }
         });
@@ -192,10 +204,8 @@
                     createTitle(item.str);
                     return item.str;
                 }).join('|');
-
                 const spaceofpage = pageCount < reading.numPages ? " " : ""
                 pdfTexts += texts + spaceofpage;
-                showProgressBar(reading.numPages, pageCount);
             }
             parseTableFromText(pdfTexts);
         } catch (error) {
@@ -207,49 +217,83 @@
     function parseTableFromText(text) {
         const arrs = textToarray(text);
         const groups = groupArray(arrs, 7);
+        arrDataPDF.unshift(...groups);
+        createTable(groups);
+    }
 
+    function createTable(tableData) {
         $("#tableData").html("");
+        //ສະແດງໂຫຼດຂໍ້ມູນ        
         let strTable = "";
         let sales = 0;
         let award = 0;
         let calpercent = 0;
         let amount = 0;
-        //ເກັບຂໍ້ມູນໄວ້ບັນທຶກ
-        arrDataPDF.unshift(...groups);
         //ສະແດງຕາຕະລາງ
-        groups.forEach((lot, index) => {
-            strTable += `
-                <tr class="text-end">
-                    <td class="text-center">${lot[0]}</td>
+        tableData.forEach((lot, index) => {
+            setTimeout(() => {
+                const col = $(`<tr class="text-end"></tr>`);
+                col.html(`<td class="text-center">${lot[0]}</td>
                     <td class="text-center">${lot[1]}</td>
                     <td>${lot[2]}</td>
                     <td>${lot[3]}</td>
                     <td class="col-1 text-center">${lot[4]}</td>
                     <td class="col-1">${lot[5]}</td>
-                    <td>${lot[6]}</td>
-                </tr>`;
-            //ລວມເງິນທັງໝົດ
-            const sums = calculator(lot);
-            sales += sums.sales;
-            award += sums.award;
-            calpercent += sums.calpercent;
-            amount += sums.amount;
+                    <td>${lot[6]}</td>`);
+                $('#tableData').append(col);
+                col.hide();
+                //ລວມເງິນທັງໝົດ
+                const sums = calculator(lot);
+                sales += sums.sales;
+                award += sums.award;
+                calpercent += sums.calpercent;
+                amount += sums.amount;
+                showProgressBar(tableData.length, index + 1);
+                if (tableData.length == index + 1) {
+                    //ແຖວລວມເງິນທັງໝົດ
+                    $("#tableData").append(`<tr class="text-end"><td colspan="2" class="text-center">ລ່ວມທັງໝົດ</td>
+                        <td>${myMoney(sales)}</td>
+                        <td>${myMoney(award)}</td>
+                        <td class="text-center">-</td>
+                        <td>${myMoney(calpercent)}</td>
+                        <td>${myMoney(amount)}</td>
+                    </tr>`);
+                    //ສະແດງປຸ່ມ
+                    $("#btnscan").removeAttr("disabled");
+                    isShowButton();
+                    showCurrentPage(500, 1);
+                    PaginationEvents(tableData, 500);
+                }
+            }, index * 2);
         });
-        //ແຖວລວມເງິນທັງໝົດ
-        strTable += `
-        <tr class="text-end">
-            <td colspan="2" class="text-center">ລ່ວມທັງໝົດ</td>
-            <td>${myMoney(sales)}</td>
-            <td>${myMoney(award)}</td>
-            <td class="text-center">-</td>
-            <td>${myMoney(calpercent)}</td>
-            <td>${myMoney(amount)}</td>
-        </tr>`;
-        //ສະແດງຂໍ້ມູນຕາຕະລາງ
-        $("#tableData").html(strTable);
-        //ສະແດງປຸ່ມ
-        $("#btnscan").removeAttr("disabled");
-        isShowButton();
+    }
+
+    function showCurrentPage(pageSize, currentPage) {
+        $('#tableData tr').hide();
+        startIndex = (currentPage - 1) * pageSize;
+        endIndex = startIndex + pageSize;
+        $('#tableData tr').slice(startIndex, endIndex).show();
+    }
+
+    function PaginationEvents(tableData, buttons) {
+        const countButton = tableData.length / buttons;
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="1">⬅️</a></li>`));
+        for (var i = 0; i <= countButton; i++) {
+            if (i == 0) {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link active" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            } else {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            }
+        }
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${countButton + 1}">➡️</a></li>`));
+
+        $('.pagination a').click(function (e) {
+            e.preventDefault();
+            var newPage = $(this).data('page');
+            $('.pagination a').removeClass('active');
+            $(this).addClass('active');
+            showCurrentPage(buttons, newPage);
+        });
     }
 
     function textToarray(text) {

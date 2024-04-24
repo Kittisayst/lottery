@@ -1,5 +1,5 @@
 <div class="container content">
-    <?php require_once("./views/Alert.php") ?>
+    <?php require_once ("./views/Alert.php") ?>
     <div class="mb-3">
         <a href="?page=createuser" class="btn btn-primary">ເພີ່ມຜູ້ໃຊ້ງານ</a>
     </div>
@@ -10,7 +10,7 @@
                 <th scope="col">ຊື່ຜູ້ໃຊ້ງານ</th>
                 <th scope="col">ຜູ້ໃຊ້ງານ</th>
                 <th scope="col">ໃຊ້ງານລ່າສຸດ</th>
-                <th scope="col">ຈັດການ</th>
+                <th scope="col" class="col-1">ຈັດການ</th>
             </tr>
         </thead>
         <tbody id="tbdata">
@@ -20,6 +20,36 @@
 </div>
 
 <script>
+    $("#tbdata").load("./database/TableUser.php?api=users", (responseTxt) => {
+
+    });
+
+    const edit = (id) => {
+        location.href = `?page=edituser&id=${id}`;
+    }
+
+    const deleteuser = (id) => {
+        Swal.fire({
+            title: "ລົບຂໍ້ມູນ",
+            text: "ທ່ານຕ້ອງການລົບຂໍ້ມູນຫຼືບໍ່!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ລົບຜູ້ໃຊ້ງານ",
+            cancelButtonText: "ຍົກເລີກ"
+        }).then((result) => {
+            const newState = $(this).prop('checked');
+            if (result.isConfirmed) {
+                const upres = $.get(`./api/userAPI.php?api=delete&id=${id}`, (result) => {
+                    if (result.state) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    }
+
     const show = () => {
         $.get(`./api/userAPI.php?api=getusers`, (res) => {
             const users = res.data;
@@ -31,29 +61,11 @@
                     </td>`);
                 const buttonDelete = $(`<button href="#" class="btn btn-danger btn-sm"><i class='bx bxs-trash' ></i></button>`);
                 buttonDelete.click(() => {
-                    Swal.fire({
-                        title: "ລົບຂໍ້ມູນ",
-                        text: "ທ່ານຕ້ອງການລົບຂໍ້ມູນຫຼືບໍ່!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "ລົບຜູ້ໃຊ້ງານ",
-                        cancelButtonText: "ຍົກເລີກ"
-                    }).then((result) => {
-                        const newState = $(this).prop('checked');
-                        if (result.isConfirmed) {
-                            const upres = $.get(`./api/userAPI.php?api=delete&id=${user['userID']}`, (result) => {
-                                if (result.state) {
-                                    location.reload();
-                                }
-                            });
-                        }
-                    });
+
                 });
                 action.append(buttonDelete);
                 tr.html(`
-                    <th scope="row" class="text-center">${index+1}</th>
+                    <th scope="row" class="text-center">${index + 1}</th>
                     <td class="text-center">${user['UserName']}</td>
                     <td class="text-center">${user['User']}</td>
                     <td class="text-center">${user['log']}</td>
@@ -69,5 +81,5 @@
             });
         });
     }
-    show();
+    // show();
 </script>

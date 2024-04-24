@@ -13,7 +13,7 @@
                 <th scope="col">ວັນທີ</th>
                 <th scope="col">ຊື່ໄຟລ໌</th>
                 <th scope="col">ຂະໜາດ</th>
-                <th scope="col" style="width: 150px;">ຈັດການ</th>
+                <th scope="col" style="width: 170px;">ຈັດການ</th>
             </tr>
         </thead>
         <tbody id="tbdata">
@@ -23,3 +23,39 @@
         </tbody>
     </table>
 </div>
+<script>
+    const deletePDF = (id) => {
+        Swal.fire({
+            title: 'ລົບຂໍ້ມູນ PDF ຍອດຂາຍ?',
+            text: "ທ່ານຕ້ອງການລົບຂໍ້ມູນນີ້ຫຼືບໍ່!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ລົບຂໍ້ມູນ',
+            cancelButtonText: 'ຍົກເລີກ',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.get(`./api/SalePDFAPI.php?api=delete&id=${id}`, (res) => {
+                    if (res.state) {
+                        Swal.fire({
+                            position: "center",
+                            icon: res.data,
+                            title: res.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).finally(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            position: "center",
+                            icon: res.data,
+                            title: res.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>

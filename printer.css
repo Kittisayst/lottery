@@ -35,7 +35,7 @@
         font-family: "Phetsarath OT", sans-serif;
         font-size: 12pt;
     }
-    
+
     .print-p {
         padding: 0;
     }
@@ -68,7 +68,13 @@
         display: none;
     }
 
+    #btnbackdddd {
+        display: none;
+    }
+
     #btnPrint {
         display: none;
     }
+
+
 }

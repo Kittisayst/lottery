@@ -7,6 +7,9 @@ if (isset($_GET['api'])) {
         case 'create':
             create();
             break;
+        case 'delete':
+            delete();
+            break;
         default:
             # code...
             break;
@@ -40,6 +43,21 @@ function create()
         $conn->createJson("warning", "ເລກທີ່ " . $_POST['lotteryNo'] . " ໄດ້ບັນທຶກແລ້ວ", false);
     }
 
+}
+
+function delete()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $db = $conn->getConnection();
+    $sql = "DELETE FROM tb_salepdf WHERE salePDFID=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$_GET['id']]);
+    if ($stmt) {
+        $conn->createJson("success", "ລົບຂໍ້ມູນ PDF ການຂາຍ ສຳເລັດ", true);
+    } else {
+        $conn->createJson("error", "ລົບຂໍ້ມູນ PDF ການຂາຍ ຜິດພາດ", true);
+    }
 }
 
 function getMaxID()

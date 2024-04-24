@@ -31,6 +31,8 @@
                     <button type="submit" class="btn btn-primary" id="btnshow">
                         <i class="bi bi-search"></i> ສະແດງ
                     </button>
+                    <a class="btn btn-info" href="?page=scanpayment&id=<?= $_GET['id'] ?>&limit=100&pagination=1"><i
+                            class="bi bi-arrow-clockwise"></i></a>
                 </div>
             </form>
             <div>
@@ -66,23 +68,134 @@
             </tr>
         </thead>
         <tbody id="tableData">
-            <?php
-            require_once ("./database/ReaderSalePDFTable.php");
-            ?>
+
         </tbody>
     </table>
     <div class="d-flex justify-content-center">
-        <div aria-label="Page navigation example" id="lotpagination">
-            <?= getPagination() ?>
-        </div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination" id="pagilist">
+
+            </ul>
+        </nav>
     </div>
 </div>
 <script>
 
+    $(document).ready(function () {
+        loadData(`./database/ReaderSalePDFTable.php?id=<?= $_GET['id'] ?>`);
+    });
+
+    const loadData = async (url) => {
+        //ສະແດງໂຫຼດຕາຕະລາງ
+        $('#tableData').html(`
+            <tr class="text-center">
+                <td colspan='7'>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">ກຳລັງໂຫຼດຂໍ້ມູນຈາກ PDF ກະລຸນາລໍຖ້າ!</span>
+                </td>
+            </tr>`);
+        //ລ້າງປຸ່ມ
+        $("#pagilist").html("");
+        //ດຶງຂໍ້ມູນຈາກ API
+        const fetching = await fetch(url);
+        const res = await fetching.json();
+        const convert = JSON.parse(res.data);
+        $("#tableData").html("");
+        let Sales = 0;
+        let Award = 0;
+        let Price = 0;
+        let Amount = 0;
+
+        convert.forEach((item, index) => {
+            const saleData = typeof item === "string" ? JSON.parse(item) : item;
+            CreateTable(saleData, index);
+            //ຄິດໄລ່ລວມເງິນ
+            const sum = convertMoney(saleData);
+            Sales += sum.Sales;
+            Award += sum.Award;
+            Price += sum.Price;
+            Amount += sum.Amount;
+        });
+        CreateRowTotal(Sales, Award, Price, Amount);
+        if (convert.length >= 500) {
+            const rowviews = 500;
+            showCurrentPage(rowviews, 1);
+            PaginationEvents(convert, rowviews);
+        } else {
+            $('#tableData tr').show();
+        }
+    }
+
+
+    const CreateTable = (data, index) => {
+        const col = $(`<tr class="text-end">
+            <td class='text-center'>${index + 1}</td>
+            <td class='text-center'>${data['machineCode']}</td>
+            <td>${data['Sales']}</td>
+            <td>${data['Award']}</td>
+            <td class='text-center col-1'>${data['Percentage']}</td>
+            <td class='col-1'>${data['Price']}</td>
+            <td>${data['Amount']}</td>
+        </tr>`);
+        $("#tableData").append(col);
+        col.hide();
+    }
+
+    const CreateRowTotal = (Sales, Award, Price, Amount) => {
+        const col = $(`<tr class='text-end'>
+                <td colspan='2' class='text-center'>ລ່ວມທັງໝົດ</td>
+                <td>${Sales.toLocaleString()}</td>
+                <td>${Award.toLocaleString()}</td>
+                <td class='text-center'>-</td>
+                <td>${Price.toLocaleString()}</td>
+                <td>${Amount.toLocaleString()}</td>
+            </tr>`);
+        $("#tableData").append(col);
+        col.hide();
+        isShowButton();
+    }
+
+    function showCurrentPage(pageSize, currentPage) {
+        $('#tableData tr').hide();
+        startIndex = (currentPage - 1) * pageSize;
+        endIndex = startIndex + pageSize;
+        $('#tableData tr').slice(startIndex, endIndex).show();
+    }
+
+    function PaginationEvents(tableData, buttons) {
+        const countButton = tableData.length / buttons;
+        console.log(countButton);
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="1">⬅️</a></li>`));
+        for (var i = 0; i <= countButton; i++) {
+            if (i == 0) {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link active" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            } else {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            }
+        }
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${countButton + 1}">➡️</a></li>`));
+
+        $('.pagination a').click(function (e) {
+            e.preventDefault();
+            var newPage = $(this).data('page');
+            $('.pagination a').removeClass('active');
+            $(this).addClass('active');
+            showCurrentPage(buttons, newPage);
+        });
+    }
+
+    const convertMoney = (data) => {
+        const Sales = str_number(data['Sales']);
+        const Award = str_number(data['Award']);
+        const Price = str_number(data['Price']);
+        const Amount = str_number(data['Amount']);
+        return { "Sales": Sales, "Award": Award, "Price": Price, "Amount": Amount };
+    }
+
     $("#frmshowUint").submit((e) => {
         e.preventDefault();
         const frm = $("#frmshowUint").serializeArray();
-        location.href = `?page=scanpayment&id=<?= $_GET['id'] ?>&pid=${frm[0].value}&unitID=${frm[1].value}&limit=100&pagination=1`;
+        loadData(`./database/ReaderSalePDFTable.php?id=<?= $_GET['id'] ?>&unitID=${frm[1].value}`);
     });
 
     $("#cbProvince").on("change", (e) => {
@@ -104,6 +217,7 @@
         $("#btnsavepdf").prop("disabled", rowCount <= 1);
         $("#btnsaveExcel").prop("disabled", rowCount <= 1);
         $("#btnshow").prop("disabled", rowCount <= 1);
+        $("#btnSave").prop("disabled", rowCount <= 1);
     }
 
     //Export Excel
@@ -165,6 +279,7 @@
             focusCancel: false,
             allowOutsideClick: false
         });
+
         $("#frmSave").submit((e) => {
             e.preventDefault();
             const frm = $("#frmSave").serializeArray();

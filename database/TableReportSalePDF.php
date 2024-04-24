@@ -18,13 +18,14 @@ if (count($result) > 0) {
         // ຍອດຂາຍ ແຂວງ​ໄຊຍະບູລີ ໜ່ວຍ​ ທ.​ເປ​ ວັນທີ່.​ 19/04/2024
         $text = "ຍອດຂາຍ " . $row['pname'] . " ໜ່ວຍ" . $row['unitName'] . "ວັນທີ່." . date("d/m/Y", strtotime($row['lotDate']));
         $comment = $row['comment'];
+        $id = $row['savePDF_ID'];
         echo "
         <tr class='text-center'>
             <td>$index</td>
             <td>$text</td>
             <td>$comment</td>
             <td class='d-flex gap-2'>
-                <a href='' class='btn btn-info btn-sm w-50'><i class='bi bi-printer-fill'></i></a>
+                <a href='?page=printsalepdf&id=$id' class='btn btn-info btn-sm w-50'><i class='bi bi-eye-fill'></i></a>
                 <button class='btn btn-danger btn-sm w-50'><i class='bi bi-trash-fill'></i></button>
             </td>
         </tr>";

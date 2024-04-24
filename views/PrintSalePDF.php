@@ -1,5 +1,11 @@
 <link rel="stylesheet" href="./printer.css">
-
+<style>
+    @media print {
+        #btnback {
+            display: none;
+        }
+    }
+</style>
 <div class="d-flex flex-column print-p">
     <div class="position-relative">
         <p class="text-center">ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ<br>ສັນຕິພາບ ເອກະລາດ ປະຊາທິປະໄຕ ເອກະພາບ ວັດທະນະຖາວອນ
@@ -52,12 +58,15 @@
             ?>
         </tbody>
     </table>
-    <div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-warning btn-lg w-100" id="btnback">
+            <i class="bi bi-arrow-left-circle-fill"></i> ກັບຄືນ
+        </button>
+        <button class="btn btn-success btn-lg w-100">
+            <i class="bi bi-floppy-fill"></i> ບັນທຶກລົງການປ້ອນຂໍ້ມູນ
+        </button>
         <button class="btn btn-primary btn-lg w-100" id="btnPrint">
             <i class="bi bi-printer-fill"></i> ປີ້ນໃຍສັງລວມການຂາຍ
-        </button>
-        <button class="btn btn-primary btn-lg w-100" id="btnback">
-            <i class="bi bi-printer-fill"></i> ກັບຄືນ
         </button>
     </div>
 </div>
@@ -65,7 +74,7 @@
     $("#btnPrint").click(() => {
         window.print();
     });
-    $("btnback").click(() => {
-        location.href = `?page=scanpayment&id=<?= $_GET['id'] ?>`;
+    $("#btnback").click(() => {
+        history.back();
     });
 </script>
