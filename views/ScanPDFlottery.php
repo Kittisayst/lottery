@@ -18,7 +18,7 @@
             <hr>
         </div>
         <div class="my-3 text-center">
-            <span id="lotinfo" class="fs-5">ຂໍ້ມູນ PDF</span>
+            <span id="lotinfo" class="fs-5"></span>
             <span id="lotcorrect" class="fs-5 ms-3"></span>
         </div>
 
@@ -26,24 +26,24 @@
             <form id="frmpdf" class="d-flex align-items-center p-2 gap-5">
                 <div class="d-flex gap-2">
                     <div>
-                        <select class="form-select" name="provinceID" id="cbProvince">
+                        <select class="form-select" name="provinceID" id="cbProvince" disabled>
                             <?php
                             include_once ("./database/Province_Options.php");
                             ?>
                         </select>
                     </div>
                     <div>
-                        <select class="form-select" name="unitid" id="cbUnit">
+                        <select class="form-select" name="unitid" id="cbUnit" disabled>
                             <?php
                             include_once ("./database/unit_Option.php");
                             ?>
                         </select>
                     </div>
                     <div class="d-flex align-items-center gap-4">
-                        <button class="btn btn-primary" id="btnshow" type="submit">
+                        <button class="btn btn-primary" id="btnshow" type="submit" disabled>
                             <i class="bi bi-search"></i> ສະແດງ
                         </button>
-                        <button class="btn btn-info" id="btnReload">
+                        <button class="btn btn-info" id="btnReload" disabled>
                             <i class="bi bi-binoculars-fill"></i> ສະແດງທັງໝົດ
                         </button>
                     </div>
@@ -87,6 +87,13 @@
 
         </tbody>
     </table>
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination" id="pagilist">
+
+            </ul>
+        </nav>
+    </div>
 </div>
 
 <script>
@@ -104,51 +111,43 @@
         const getPDF = localStorage.getItem('pdfdata');
         if (getPDF) {
             const arrdata = JSON.parse(getPDF);
-            $("#tableData").html("");
+            $("#tableData").html(`
+                <tr class="text-center">
+                <td colspan='11'>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">ກຳລັງອ່ານຂໍ້ມູນຈາກ PDF ກະລຸນາລໍຖ້າ!</span>
+                </td>
+            </tr>`);
+            $("#btnscan").attr('disabled', "disabled");
             createTable(arrdata, true, ".......... ບໍ່ພົບຂໍ້ມູນ PDF ..........");
         }
     });
 
     //Export Excel
     $("#btnexcel").on("click", () => {
+        const exportFileName = getTitleText();
+        const table = document.getElementById("tbshow");
+        // Create workbook
+        var wb = XLSX.utils.book_new();
+        const tablearr = createTableToarray();
+        tablearr.unshift([exportFileName]);
+        tablearr[tablearr.length - 1].unshift("");
+        tablearr[tablearr.length - 1].unshift("");
+        var ws = XLSX.utils.aoa_to_sheet(tablearr);
+        XLSX.utils.book_append_sheet(wb, ws, "ຖືກລາງວັນ");
+        XLSX.writeFile(wb, `${exportFileName}.xlsx`);
+    });
+
+    const getTitleText = () => {
         const provinceText = $("#cbProvince option:selected").text();
         const unittext = $('#cbUnit option:selected').text();
+        const lotinfo = $("#lotinfo").text();
         const lotcorrect = $("#lotcorrect").text();
         // ຍອດຂາຍ ແຂວງ​ໄຊຍະບູລີ ໜ່ວຍ​ ທ.​ເປ​ ວັນທີ່.​ 19/04/2024
-        const commentText = `ຖືກລາງວັນ ແຂວງ ${provinceText} ໜ່ວຍ ${unittext} ເລກອອກ ${lotcorrect}`;
-        const table = document.getElementById("tbshow");
-        const workbook = XLSX.utils.table_to_book(table, {
-            sheet: `ເລກອອກ ${lotcorrect}`
-        });
-
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const range = XLSX.utils.decode_range(sheet['!ref']);
-        for (let i = range.s.r; i <= range.e.r; i++) {
-            const cellAddress = XLSX.utils.encode_cell({ r: i, c: 2 });
-            sheet[cellAddress].t='s';
-            console.log(sheet[cellAddress]);
-            // console.log(cellAddress);
-            // if (sheet[cellAddress]) {
-            //     sheet[cellAddress].t = 's'; // Set cell type to string (text)
-            // }
-        }
-
-        // Access the first sheet in the workbook
-
-
-        // Set the format for column 2 to text
-        // const range = XLSX.utils.decode_range(sheet['!ref']);
-        // for (let i = range.s.r; i <= range.e.r; i++) {
-        //     const cellAddress = XLSX.utils.encode_cell({ r: i, c: 3 });
-        //     console.log(cellAddress);
-        //     if (sheet[cellAddress]) {
-        //         sheet[cellAddress].t = 's'; // Set cell type to string (text)
-        //     }
-        // }
-        // console.log(workbook);
-
-        // XLSX.writeFile(workbook, `${commentText}.xlsx`);
-    });
+        const lotNoText = lotinfo == "" ? "------" : lotinfo.replace("ງວດທີ່: ", "");
+        const exportFileName = `ຖືກລາງວັນ ແຂວງ ${provinceText == "---ເລືອກແຂວງ---" ? "ທັງໝົດ" : provinceText} ໜ່ວຍ ${unittext == "---ໜ່ວຍທັງໝົດ---" ? "ທັງໝົດ" : unittext} ງວດທີ ${lotNoText.replace("/", "-").replace("/", "-")} ເລກທີ່ອອກ ${lotcorrect == "" ? "------" : lotcorrect.replace("ເລກທີ່ອອກ: ", "")}`;
+        return exportFileName;
+    }
 
     //ກົດປຸ່ມຄົ້ນຫາ
     $("#frmpdf").submit((e) => {
@@ -173,10 +172,24 @@
         }
     });
 
+    $("#btnpdf").click(() => {
+        const tableHtml = $('#tbshow').prop('outerHTML');
+        const arrPrint = { "title": getTitleText(), "print": createTableToarray() };
+        sessionStorage.setItem("printdata",JSON.stringify(arrPrint));
+        location.href = `?page=printpdflottery`;
+    });
+
     const findDataByUnitID = (unitID, arrdata) => {
         $.get(`./api/sellCodeAPI.php?api=getbyunitid&id=${unitID}`, (res) => {
             const sellcodes = res.data.map(item => item['machineCode']);
             const foundItems = arrdata.filter(item => sellcodes.includes(item[1]));
+            $("#tableData").html(`
+                <tr class="text-center">
+                <td colspan='11'>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">ກຳລັງອ່ານຂໍ້ມູນຈາກ PDF ກະລຸນາລໍຖ້າ!</span>
+                </td>
+            </tr>`);
             createTable(foundItems, false, ".......... ບໍ່ພົບຂໍ້ມູນທີ່ກົງກັບລະຫັດຜຸ້ຂາຍ ..........")
         });
     }
@@ -254,7 +267,7 @@
     }
 
     const createTable = (groups, isShowProgress, emptyText) => {
-        $("#tableData").html("");
+        $("#pagilist li").remove();
         let lot1 = 0;
         let lot2 = 0;
         let lot3 = 0;
@@ -276,7 +289,7 @@
             setTimeout(() => {
                 const col = $(`<tr class="text-end"></tr>`);
                 col.html(`
-                    <td class="text-center">${lot[0]}</td>
+                    <td class="text-center">${index + 1}</td>
                     <td class="text-center">${lot[1]}</td>
                     <td class="text-center">${lot[2]}</td>
                     <td>${lot[3]}</td>
@@ -297,6 +310,7 @@
                 lot6 += sums.lot6;
                 amount += sums.amount;
                 $("#tableData").append(col);
+                col.hide();
                 if (groups.length == index + 1) {
                     //ແຖວລວມເງິນທັງໝົດ
                     const col = $(`<tr class="text-end"></tr>`);
@@ -313,6 +327,9 @@
                     //ສະແດງປຸ່ມ
                     $("#btnscan").removeAttr("disabled");
                     isShowButton();
+                    $("#tableData tr:first").remove();
+                    showCurrentPage(500, 1);
+                    PaginationEvents(groups, 500);
                 }
 
                 if (isShowProgress) {
@@ -321,6 +338,47 @@
                 }
             }, index * 2);
         });
+    }
+
+    function showCurrentPage(pageSize, currentPage) {
+        $('#tableData tr').hide();
+        startIndex = (currentPage - 1) * pageSize;
+        endIndex = startIndex + pageSize;
+        $('#tableData tr').slice(startIndex, endIndex).show();
+    }
+
+    function PaginationEvents(tableData, buttons) {
+        const countButton = tableData.length / buttons;
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="1">⬅️</a></li>`));
+        for (var i = 0; i <= countButton; i++) {
+            if (i == 0) {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link active" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            } else {
+                $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${i + 1}">${i + 1}</a></li>`));
+            }
+        }
+        $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="${countButton + 1}">➡️</a></li>`));
+
+        $('.pagination a').click(function (e) {
+            e.preventDefault();
+            var newPage = $(this).data('page');
+            $('.pagination a').removeClass('active');
+            $(this).addClass('active');
+            showCurrentPage(buttons, newPage);
+        });
+    }
+
+    const createTableToarray = () => {
+        const table = $("#tbshow");
+        const arr = [];
+        table.find("tr").each(function () {
+            const cells = [];
+            $(this).find("td, th").each(function () {
+                cells.push($(this).text());
+            });
+            arr.push(cells);
+        });
+        return arr;
     }
 
     function textToarray(text) {
@@ -399,6 +457,8 @@
         $("#btnReload").prop("disabled", rowCount <= 1);
         $("#btnexcel").prop("disabled", rowCount <= 1);
         $("#btnpdf").prop("disabled", rowCount <= 1);
+        $("#cbProvince").prop("disabled", rowCount <= 1);
+        $("#cbUnit").prop("disabled", rowCount <= 1);
     }
 
     $("#cbProvince").on("change", (e) => {

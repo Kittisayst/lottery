@@ -2,7 +2,7 @@
 require_once ("./database/connectDB.php");
 $connnect = new connectDB();
 $db = $connnect->getConnection();
-$sql = "SELECT * FROM tb_salepdf ORDER BY salePDFID DESC LIMIT 35";
+$sql = "SELECT * FROM tb_salepdf ORDER BY lotteryNo DESC LIMIT 35";
 $stmt = $db->prepare($sql);
 $stmt->execute();
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

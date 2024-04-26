@@ -36,6 +36,7 @@ if ($login->isLogin()) {
     new Router("scanpayment","./views/ScanPDF.php", "ອ່ານ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
     //Print page
     new Router("printsalepdf","./views/PrintSalePDF.php", "ປີ້ນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    new Router("printpdflottery","./views/PrintPDFLottery.php", "ອ່ານ PDF ຖືກລາງວັນ");
     //Reports
     new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນທັງໝົດ");
     new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");

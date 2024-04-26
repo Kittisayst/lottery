@@ -7,19 +7,13 @@
     }
 </style>
 <div class="d-flex flex-column print-p">
-    <div class="position-relative">
-        <p class="text-center">ສາທາລະນະລັດ ປະຊາທິປະໄຕ ປະຊາຊົນລາວ<br>ສັນຕິພາບ ເອກະລາດ ປະຊາທິປະໄຕ ເອກະພາບ ວັດທະນະຖາວອນ
-        </p>
-        <div class="position-absolute top-0 start-0">
-            <img class="" src="./public/lotteryIcon.png" alt="logo" width="80px">
-        </div>
+    <div class="mb-3">
         <div class="d-flex">
             <p class="fs-h  text-center col">ສັງລວມການຂາຍ</p>
         </div>
     </div>
     <div class="d-flex justify-content-between">
         <div class="d-flex flex-column">
-            <span>ບໍລິສັດ ວິສາຫະກິດຫວຍພັດທະນາລາວ</span>
             <span>ຕົວແທນແຂວງ: <spn id="pname" class="fw-bold"></spn></span>
             <span>ໜ່ວຍ: <spn id="uname" class="fw-bold"></spn></span>
             <span>ເບີໂທສາຂາ:...........................</span>
@@ -62,11 +56,8 @@
         <button class="btn btn-warning btn-lg w-100" id="btnback">
             <i class="bi bi-arrow-left-circle-fill"></i> ກັບຄືນ
         </button>
-        <button class="btn btn-success btn-lg w-100">
-            <i class="bi bi-floppy-fill"></i> ບັນທຶກລົງການປ້ອນຂໍ້ມູນ
-        </button>
         <button class="btn btn-primary btn-lg w-100" id="btnPrint">
-            <i class="bi bi-printer-fill"></i> ປີ້ນໃຍສັງລວມການຂາຍ
+            <i class="bi bi-printer-fill"></i> ປີ້ນໃບສັງລວມການຂາຍ
         </button>
     </div>
 </div>

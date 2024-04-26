@@ -19,12 +19,14 @@ if (count($result) > 0) {
         $text = "ຍອດຂາຍ " . $row['pname'] . " ໜ່ວຍ" . $row['unitName'] . "ວັນທີ່." . date("d/m/Y", strtotime($row['lotDate']));
         $comment = $row['comment'];
         $id = $row['savePDF_ID'];
+        $isshowSave = checkIsSaveFinancial($row['unitID'], $row['lotteryID']) ? "disabled" : "";
         echo "
         <tr class='text-center'>
             <td>$index</td>
             <td>$text</td>
             <td>$comment</td>
             <td class='d-flex gap-2'>
+                <button class='btn btn-primary btn-sm w-50' onclick='saveFinancial($id)' $isshowSave><i class='bi bi-floppy2-fill'></i></button>
                 <a href='?page=printsalepdf&id=$id' class='btn btn-info btn-sm w-50'><i class='bi bi-eye-fill'></i></a>
                 <button class='btn btn-danger btn-sm w-50'><i class='bi bi-trash-fill'></i></button>
             </td>
@@ -32,6 +34,18 @@ if (count($result) > 0) {
     }
 } else {
     echo "no";
+}
+
+function checkIsSaveFinancial($unitID, $loteryID)
+{
+    require_once ("./database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT COUNT(*) AS fnCount FROM tb_financail WHERE UnitID=? AND lotteryID=?";
+    $stm = $connect->prepare($sql);
+    $stm->execute([$unitID, $loteryID]);
+    $result = $stm->fetchAll();
+    return $result[0]['fnCount'] > 0;
 }
 
 

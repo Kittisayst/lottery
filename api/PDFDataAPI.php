@@ -7,6 +7,9 @@ if (isset($_GET['api'])) {
         case 'create':
             create();
             break;
+        case 'getbyid':
+            getbyID();
+            break;
         default:
             # code...
             break;
@@ -30,6 +33,25 @@ function create()
         }
     } else {
         $conn->createJson("warning", "ຂໍ້ມູນ PDF ໜ່ວຍນີ້ ບັນທຶກແລ້ວ!", false);
+    }
+}
+
+function getbyID()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT * FROM tb_save_pdf_data AS sv
+    INNER JOIN tb_unit AS un ON sv.unitID=un.unitID
+    INNER JOIN tb_lottery AS lot ON sv.lotteryID = lot.lotteryID
+    WHERE sv.savePDF_ID=?";
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$_GET['id']]);
+    if ($stmt->rowCount() > 0) {
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $conn->createJson($result[0], "ຂໍ້ມູນ PDF", true);
+    } else {
+        $conn->createJson("error", "ບໍ່ພົບຂໍ້ມູນຈາກ ID " . $_GET['id'], false);
     }
 }
 

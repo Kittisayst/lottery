@@ -2,7 +2,9 @@
     <?php require_once ("./views/Alert.php") ?>
     <script>
         $(function () {
-            $("#datepicker").datepicker();
+            $("#datepicker").datepicker({
+                dateFormat: "dd/mm/yy"
+            });
         });
     </script>
     <div class="card mb-1">
@@ -90,49 +92,56 @@
         //ກົດປຸ່ມບັນທຶກ
         $("#frmSave").submit((e) => {
             e.preventDefault();
-            $("#btnSave").attr("disabled", "disabled");
+            const frm = $("#frmSave").serializeArray();
+            if (isDateFormat(frm[1].value) && frm[1].value != "01/01/1970") {
+                $("#btnSave").attr("disabled", "disabled");
+                if (arrDataPDF.length > 0) {
+                    const fileInput = document.getElementById('txtpdf');
+                    const file = fileInput.files[0];
+                    const lotteryNo = frm[0].value;
+                    const lotdate = frm[1].value;
+                    const fileName = file.name;
+                    const fileSize = file.size / 1024;
+                    const pdfData = [];
+                    const UserID = <?= $_COOKIE['user'] ?>;
+                    arrDataPDF.forEach((lot, index) => {
+                        //create Json Data
+                        pdfData.push(
+                            {
+                                "machineCode": lot[1],
+                                "Sales": lot[2],
+                                "Award": lot[3],
+                                "Percentage": lot[4],
+                                "Price": lot[5],
+                                "Amount": lot[6]
+                            });
+                        //save data when finished loop
+                        if (index == arrDataPDF.length - 1) {
+                            const createData = {
+                                "lotteryNo": lotteryNo,
+                                "lotDate": lotdate,
+                                "FileName": fileName,
+                                "fileSize": fileSize.toFixed(2),
+                                "pdfData": JSON.stringify(pdfData),
+                                "UserID": UserID
+                            };
+                            //send to api
+                            save(createData);
 
-            if (arrDataPDF.length > 0) {
-                const frm = $("#frmSave").serializeArray();
-                const fileInput = document.getElementById('txtpdf');
-                const file = fileInput.files[0];
-                const lotteryNo = frm[0].value;
-                const lotdate = frm[1].value;
-                const fileName = file.name;
-                const fileSize = file.size / 1024;
-                const pdfData = [];
-                const UserID = <?= $_COOKIE['user'] ?>;
-                arrDataPDF.forEach((lot, index) => {
-                    //create Json Data
-                    pdfData.push(
-                        {
-                            "machineCode": lot[1],
-                            "Sales": lot[2],
-                            "Award": lot[3],
-                            "Percentage": lot[4],
-                            "Price": lot[5],
-                            "Amount": lot[6]
-                        });
-                    //save data
-                    if (index == arrDataPDF.length - 1) {
-                        const createData = {
-                            "lotteryNo": lotteryNo,
-                            "lotDate": lotdate,
-                            "FileName": fileName,
-                            "fileSize": fileSize.toFixed(2),
-                            "pdfData": JSON.stringify(pdfData),
-                            "UserID": UserID
-                        };
-                        //send to api
-                        save(createData);
-
-                    }
-                    //show progress bar
-                    showProgressBar(arrDataPDF.length, index + 1);
+                        }
+                        //show progress bar
+                        showProgressBar(arrDataPDF.length, index + 1);
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: "ຂໍ້ມູນບໍ່ຖືກຕ້ອງ?",
+                    text: "ກະລຸນາກວດສອບວັນທີ່ຂອງທ່ານ!",
+                    icon: "warning"
                 });
             }
         });
-        $('#progressPDF').hide();
+        // $('#progressPDF').hide();
     });
 
     const save = (createData) => {
@@ -407,5 +416,9 @@
         $('#progressPDF .progress-bar').css('width', 0 + '%');
         // Update the text inside the progress bar
         $('#progressPDF .progress-bar').text(0 + '%');
+    }
+
+    function isDateFormat(dateString, format) {
+        return moment(dateString, "DD/MM/YYYY", true).isValid();
     }
 </script>

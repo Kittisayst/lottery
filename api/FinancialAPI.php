@@ -38,7 +38,7 @@ if (isset($_GET['api'])) {
 
 function create()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     if (cheking() > 0) {
         $conn->createJson("warning", "ທ່ານໄດ້ປ້ອນຂໍ້ມູນໜ່ວຍນີ້ແລ້ວ", false);
@@ -48,7 +48,7 @@ function create()
         $stm = $connect->prepare($sql);
         $sales = str_replace(',', '', $_POST['Sales']);
         $Award = str_replace(',', '', $_POST['Award']);
-        $Data = [null, $_POST['unitID'], $_GET['id'], $sales, $_POST['Percentage'], $Award, $_POST['Awardno'], $_POST['SaveDate'], $_POST['userID'], 0];
+        $Data = [null, $_POST['unitID'], $_GET['id'], $sales, $_POST['Percentage'], $Award ?? 0, $_POST['Awardno'], $_POST['SaveDate'], $_POST['userID'], 0];
         $stm->execute($Data);
         if ($stm) {
             $conn->createJson("success", "ບັນທຶກຂໍ້ມູນສຳເລັດ", true);
@@ -60,7 +60,7 @@ function create()
 
 function update()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "UPDATE tb_financail SET Sales=?,Award=?,AwardNo=?,UserID=? WHERE FinancialID=?";
@@ -78,7 +78,7 @@ function update()
 
 function cheking()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT COUNT(*) AS fnCount FROM tb_financail WHERE UnitID=? AND lotteryID=?";
@@ -90,7 +90,7 @@ function cheking()
 
 function getfinancial()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT COUNT(*) AS fnCount FROM tb_financail WHERE UnitID=? AND lotteryID=?";
@@ -102,7 +102,7 @@ function getfinancial()
 
 function getFinancials()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = 'SELECT * FROM tb_financail
@@ -118,7 +118,7 @@ function getFinancials()
 
 function getReportFinancials()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = 'SELECT * FROM tb_financail
@@ -135,7 +135,7 @@ function getReportFinancials()
 
 function getfinancialID()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = 'SELECT * FROM tb_financail
@@ -154,7 +154,7 @@ function getfinancialID()
 
 function getReprotFinancialSearch()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $startDate = $_POST['startdate'];
@@ -208,7 +208,7 @@ function getReprotFinancialSearch()
 
 function getListToPayment()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $unitID = $_GET['unitid'];
@@ -224,10 +224,10 @@ function getListToPayment()
 
 function updateState()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
-    $sql =  "UPDATE tb_financail SET state = ? WHERE FinancialID = ?";
+    $sql = "UPDATE tb_financail SET state = ? WHERE FinancialID = ?";
     $stmt = $connect->prepare($sql);
     $stmt->execute([1, $_POST['FinancialID']]);
     if ($stmt) {

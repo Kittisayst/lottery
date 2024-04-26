@@ -35,8 +35,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <!-- html2pdf -->
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <!-- jspdf -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.56/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.56/vfs_fonts.js"></script>
     <!-- Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- momentjs -->
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
     <!-- Css -->
     <link rel="stylesheet" href="./index.css">
     <style>
