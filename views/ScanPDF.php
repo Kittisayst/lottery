@@ -126,7 +126,6 @@
         }
     }
 
-
     const CreateTable = (data, index) => {
         const col = $(`<tr class="text-end">
             <td class='text-center'>${index + 1}</td>
@@ -164,7 +163,6 @@
 
     function PaginationEvents(tableData, buttons) {
         const countButton = tableData.length / buttons;
-        console.log(countButton);
         $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="1">⬅️</a></li>`));
         for (var i = 0; i <= countButton; i++) {
             if (i == 0) {
@@ -194,6 +192,10 @@
 
     $("#frmshowUint").submit((e) => {
         e.preventDefault();
+        $("#btnsavepdf").prop("disabled", true);
+        $("#btnsaveExcel").prop("disabled", true);
+        $("#btnshow").prop("disabled", true);
+        $("#btnSave").prop("disabled", true);
         const frm = $("#frmshowUint").serializeArray();
         loadData(`./database/ReaderSalePDFTable.php?id=<?= $_GET['id'] ?>&unitID=${frm[1].value}`);
     });
@@ -232,16 +234,7 @@
 
     //Export PDF file
     $("#btnsavepdf").on("click", () => {
-        const Month = new Date().getMonth() + 1;
-        var element = document.getElementsByTagName('table')[0];
-        var options = {
-            jsPDF: { // jsPDF options
-                orientation: 'portrait', // A4 is portrait by default
-                unit: 'mm', // Set unit to millimeters
-                format: [210, 297] // A4 size in millimeters
-            }
-        };
-        html2pdf().from(element).set(options).toPdf().save(`ຍອດຂາຍ ແລະ ຖືກລາງວັນ ${Month} ${jdateTimeNow()}.pdf`);
+        createPDF();
     });
 
     //Save PDF Data
@@ -370,6 +363,170 @@
         const seconds = currentDate.getSeconds().toString().padStart(2, '0');
         const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
         return formattedDateTime;
+    }
+
+    async function createPDF() {
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDoc = await PDFDocument.create();
+
+        const fontkit = window.fontkit;
+        try {
+            const fonturl = './font/boonhome-400.otf';
+            const fontBytes = await fetch(fonturl).then((res) => res.arrayBuffer());
+            pdfDoc.registerFontkit(fontkit)
+            const customFont = await pdfDoc.embedFont(fontBytes);
+
+            const A4 = [595.28, 841.89];
+            let page = pdfDoc.addPage(A4);
+            const fontSize = 14;
+            const topMargin = 10;
+            const leftMargin = 5;
+            const linespace = 5;
+            const { width, height } = page.getSize();
+            const provinceText = $("#cbProvince option:selected").text();
+            const unittext = $('#cbUnit option:selected').text();
+            const lotno = $("#lot").text();
+            const lotdate = $("#lotdate").text();
+            const lotNoText = lotno == "" ? "------" : lotno;
+            const exportFileName = `ຍອດຂາຍ ແຂວງ ${provinceText == "---ເລືອກແຂວງ---" ? "ທັງໝົດ" : provinceText} ໜ່ວຍ ${unittext == "---ໜ່ວຍທັງໝົດ---" ? "ທັງໝົດ" : unittext} ງວດທີ ${lotNoText} ວັນທີ ${lotdate}`;
+            const text = exportFileName;
+            const textsize = getTextSize(customFont, text, fontSize);
+            const startY = height - textsize.height;
+            const endX = width / 2 - textsize.width / 2 + leftMargin / 2;
+
+            page.drawText(text, {
+                x: endX,
+                y: startY - topMargin - 5,
+                size: fontSize,
+                font: customFont,
+            });
+
+            const arrheader = ["ລຳດັບ", "ລະຫັດຜູ້ຂາຍ", "ເລກບິນ", "ຖືກເລກ 1 ໂຕ", "ຖືກເລກ 2 ໂຕ", "ຖືກເລກ 3 ໂຕ", "ຖືກເລກ 4 ໂຕ", "ຖືກເລກ 5 ໂຕ", "ຖືກເລກ 6 ໂຕ", "ລວມ", "ໝາຍເຫດ"];
+            let rowspace = -50;
+            createRow(page, rgb, 10, -50, "ລຳດັບ", 12, 12, customFont, 20, 20, "center", "center");
+            createRow(page, rgb, 50, -50, "ລະຫັດຜູ້ຂາຍ", 12, 12, customFont, 80, 20, "center", "center");
+            createRow(page, rgb, 150, -50, "ມູນຄ່າຂາຍໄດ້", 12, 12, customFont, 80, 20, "center", "center");
+            createRow(page, rgb, 250, -50, "ມູນຄ່າຖືກລາງວັນ", 12, 12, customFont, 80, 20, "center", "center");
+            createRow(page, rgb, 350, -50, "ຜູ້ຂາຍໜ່ວຍ", 12, 12, customFont, 100, 20, "center", "start");
+            page.drawText("%    |", {
+                x: 350 + 35,
+                y: startY - topMargin - 50,
+                size: 12,
+                font: customFont,
+            });
+            page.drawText("     ມູນຄ່າ", {
+                x: 350 + 55,
+                y: startY - topMargin - 50,
+                size: 12,
+                font: customFont,
+            });
+            createRow(page, rgb, 470, -50, "ຜິດດ່ຽງ", 12, 12, customFont, 95, 20, "center", "center");
+            const arrtable = tableToArray("tbsales");
+            const sumrow = arrtable.pop();
+            let rowheight = -92;
+            arrtable.forEach((lots, index) => {
+                if (rowheight <= -730 - 92) {
+                    page = pdfDoc.addPage(A4);
+                    rowheight = -25;
+                }
+                createRow(page, rgb, 10, rowheight, lots[0], 12, 12, customFont, 20, 0, "center", "center");
+                createRow(page, rgb, 50, rowheight, lots[1], 12, 12, customFont, 80, 0, "center", "center");
+                createRow(page, rgb, 150, rowheight, lots[2], 12, 12, customFont, 80, 0, "end", "center");
+                createRow(page, rgb, 250, rowheight, lots[3], 12, 12, customFont, 80, 0, "end", "center");
+                createRow(page, rgb, 350, rowheight, lots[4], 12, 12, customFont, 40, 0, "center", "start");
+                createRow(page, rgb, 350 + 60, rowheight, lots[5], 12, 12, customFont, 40, 0, "center", "start");
+                createRow(page, rgb, 470, rowheight, lots[6], 12, 12, customFont, 95, 0, "end", "start");
+                rowheight += -22;
+            });
+
+            //sumrow
+            createRow(page, rgb, 10, rowheight, sumrow[0], 12, 12, customFont, 120, 0, "center", "center");
+            createRow(page, rgb, 150, rowheight, sumrow[1], 12, 12, customFont, 80, 0, "end", "center");
+            createRow(page, rgb, 250, rowheight, sumrow[2], 12, 12, customFont, 80, 0, "end", "center");
+            createRow(page, rgb, 350, rowheight, sumrow[3], 12, 12, customFont, 40, 0, "center", "start");
+            createRow(page, rgb, 350 + 60, rowheight, sumrow[4], 12, 12, customFont, 40, 0, "center", "start");
+            createRow(page, rgb, 470, rowheight, sumrow[5], 12, 12, customFont, 95, 0, "end", "start");
+
+            // Serialize the PDF document to bytes
+            const pdfBytes = await pdfDoc.save();
+
+            // Download the PDF (assuming you have this logic)
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${exportFileName.replace("/", "-").replace("/", "-")}.pdf`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error creating PDF:", error);
+        }
+    }
+
+    const getTextSize = (customFont, text, size) => {
+        const textWidth = customFont.widthOfTextAtSize(text, size)
+        const textHeight = customFont.heightAtSize(size) - size + 2
+        return { width: textWidth, height: textHeight, text: text, fontSize: size, font: customFont }
+    }
+
+    const createRow = (page, rgb, x = 0, y = 0, text, textWidth, fontsize, customFont, lineW = 0, lineH = 0, textAlignH = "start", textAlignV = "start") => {
+        const { width, height } = page.getSize();
+        const textData = getTextSize(customFont, text, fontsize);
+        const pading = 8;
+        const lineY = y + height - textData.height - lineH;
+        const lineWidth = textWidth + pading + lineW;
+        const lineHeight = textData.height + lineH + pading * 2;
+        let positionX = x;
+        let positionY = lineY + (lineH / 2 + textData.height / 2) * 2 + pading / 2;
+        switch (textAlignH) {
+            case 'start':
+                positionX = x + pading / 2;
+                break;
+            case 'center':
+                positionX = x + lineWidth / 2 - textData.width / 2;
+                break;
+            case 'end':
+                positionX = x + (lineWidth / 2 - textData.width / 2) * 2 - pading / 2;
+                break;
+            default:
+                positionX = x + pading / 2;
+                break;
+        }
+
+        switch (textAlignV) {
+            case "start":
+                positionY = lineY + (lineH / 2 + textData.height / 2) * 2 + pading / 2 - 2;
+                break;
+            case "center":
+                positionY = lineY + lineH / 2 + textData.height / 2 + pading / 2;
+                break;
+            case "end":
+                positionY = lineY + pading / 2;
+                break;
+            default:
+                positionY = lineY + (lineH / 2 + textData.height / 2) * 2 + pading / 2;
+                break;
+        }
+
+        page.drawText(text, {
+            x: positionX,
+            y: positionY,
+            size: fontsize,
+            font: customFont,
+        });
+
+        page.drawRectangle({
+            x: x,
+            y: lineY,
+            width: lineWidth,
+            height: lineHeight,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 1,
+        });
+
+        return { width: lineWidth, height: lineHeight, y: y + height - textData.height };
     }
 
 </script>

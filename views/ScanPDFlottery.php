@@ -1,9 +1,9 @@
 <div class="content">
     <?php require_once ("./views/Alert.php") ?>
     <div class="card-body bg-light">
-        <div class="mb-3 d-flex justify-content-center gap-2">
-            <div class="col-5 d-flex mt-3 gap-2">
-                <div class="col">
+        <div class="mb-3 d-flex justify-content-between">
+            <div class="d-flex justify-content-center mt-3 gap-2 flex-fill me-auto">
+                <div class="col-4">
                     <label for="txtpdf" class="form-label">ເລືອກໄຟລ໌ PDF</label>
                     <input type="file" class="form-control" name="pdfFile" id="txtpdf" accept=".pdf" required>
                 </div>
@@ -12,6 +12,11 @@
                         <i class="bi bi-file-earmark-arrow-up-fill"></i> ອ່ານ PDF
                     </button>
                 </div>
+            </div>
+            <div class="mt-auto me-3">
+                <button class="btn btn-success" id="btnLotLoading">
+                    <i class="bi bi-database-fill-check"></i> ລາຍການບັນທຶກ
+                </button>
             </div>
         </div>
         <div class="w-100">
@@ -56,8 +61,8 @@
                 <button class="btn btn-danger" id="btnpdf" disabled>
                     <i class="bi bi-file-earmark-pdf-fill"></i> PDF
                 </button>
-                <button class="btn btn-success" id="btnexcel" disabled>
-                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Excel
+                <button class="btn btn-secondary" id="btnSave">
+                    <i class="bi bi-floppy2-fill"></i> Save
                 </button>
             </div>
         </div>
@@ -96,7 +101,48 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="Modalpdfloading" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="w-100 text-center">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">ລາຍການບັນທຶກ PDF ຖືກເລກ</h1>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ol class="list-group list-group-numbered" id="listLotPDF">
+                    
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+
+    $("#btnLotLoading").click(() => {
+        $("#Modalpdfloading").modal("show");
+        $.get(`./api/LotCorrectPDF.php?api=getbyuserid&id=<?= $_COOKIE['user'] ?>`, (res) => {
+            if (res.state) {
+                if (res.data.length > 0) {
+                    $("#listLotPDF").html("");
+                    res.data.forEach(lot => {
+                        const lotlist = $(`<li class="list-group-item list-group-item-action">${lot['title']}</li>`);
+                        lotlist.click(() => {
+                            loadLotSavePDF(lot);
+                        });
+                        $("#listLotPDF").append(lotlist);
+                    });
+                } else {
+                    $("#listLotPDF").append($(`<li class="list-group-item list-group-item-action">ບໍ່ພົບຂໍ້ມູນ PDF</li>`));
+                }
+            }
+        });
+    });
+
     // ກວດສອບວ່າເລືອກໄຟ
     $("#txtpdf").change(() => {
         $("#btnscan").removeAttr("disabled");
@@ -119,24 +165,70 @@
                 </td>
             </tr>`);
             $("#btnscan").attr('disabled', "disabled");
-            createTable(arrdata, true, ".......... ບໍ່ພົບຂໍ້ມູນ PDF ..........");
+            createTable(arrdata.data, true, ".......... ບໍ່ພົບຂໍ້ມູນ PDF ..........");
         }
     });
 
-    //Export Excel
-    $("#btnexcel").on("click", () => {
-        const exportFileName = getTitleText();
-        const table = document.getElementById("tbshow");
-        // Create workbook
-        var wb = XLSX.utils.book_new();
-        const tablearr = createTableToarray();
-        tablearr.unshift([exportFileName]);
-        tablearr[tablearr.length - 1].unshift("");
-        tablearr[tablearr.length - 1].unshift("");
-        var ws = XLSX.utils.aoa_to_sheet(tablearr);
-        XLSX.utils.book_append_sheet(wb, ws, "ຖືກລາງວັນ");
-        XLSX.writeFile(wb, `${exportFileName}.xlsx`);
+    $("#btnSave").click(() => {
+        const getPDF = localStorage.getItem('pdfdata');
+        const arrdata = JSON.parse(getPDF);
+        const titles = arrdata.title;
+        Swal.fire({
+            html: `
+            <div class="fs-5 fw-bold mb-4">ງວດທີ: ${titles.lotno} ວັນທີ: ${titles.lotdate} ເລກທີອອກ: ${titles.correct}</div>
+            <form id="frmLotCorrectPDF" class="p-1">
+                <div class="mb-4">
+                    <label for="txttitle" class="form-label w-100 text-start">ລາຍລະອຽດ</label>
+                    <textarea class="form-control" id="txttitle" rows="3">${getTitleText().replace("-", "/").replace("-", "/")}</textarea>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-floppy2-fill"></i> ບັນທຶກ PDF ຖືກລາງວັນ
+                    </button>
+                </div>
+            </form>`,
+            width: 600,
+            showConfirmButton: false,
+            showCloseButton: true,
+            focusCancel: false
+        });
+        const frmLotCorrectPDF = $("#frmLotCorrectPDF");
+        frmLotCorrectPDF.submit((e) => {
+            e.preventDefault();
+            const savedata = {
+                lotno: titles.lotno,
+                lotdate: titles.lotdate,
+                correct: titles.correct,
+                pdfdata: JSON.stringify(arrdata.data),
+                title: $("#txttitle").val(),
+                userID: <?= $_COOKIE['user'] ?>
+            };
+            $.post(`./api/LotCorrectPDF.php?api=create`, savedata, (res) => {
+                if (res.state) {
+                    Swal.fire({
+                        title: res.message,
+                        icon: res.data
+                    });
+                } else {
+                    Swal.fire({
+                        title: res.message,
+                        icon: res.data
+                    });
+                }
+            });
+        });
     });
+
+    //show data in table with save lot data
+    const loadLotSavePDF = (data) => {
+        const pdfdata = JSON.parse(data.pdfdata);
+        const lotinfo = $("#lotinfo").text(`ງວດທີ່: ${data.lotno} ວັນທີ: ${data.lotdate}`);
+        const lotcorrect = $("#lotcorrect").text(`ເລກທີ່ອອກ: ${data.correct}`);
+        const createLotdata = { title: getLottitle(), data: pdfdata }
+        localStorage.setItem("pdfdata", JSON.stringify(createLotdata));
+        $("#Modalpdfloading").modal("hide");
+        createTable(pdfdata, true, ".......... ບໍ່ພົບຂໍ້ມູນ PDF ..........");
+    }
 
     const getTitleText = () => {
         const provinceText = $("#cbProvince option:selected").text();
@@ -153,13 +245,12 @@
     $("#frmpdf").submit((e) => {
         e.preventDefault();
         const frm = $("#frmpdf").serializeArray();
-
         const getPDF = localStorage.getItem('pdfdata');
         if (getPDF) {
             const arrdata = JSON.parse(getPDF);
             const unitID = frm[1].value;
             if (unitID != "0") {
-                findDataByUnitID(unitID, arrdata);
+                findDataByUnitID(unitID, arrdata.data);
             }
         } else {
             $("#tableData").html(`
@@ -173,11 +264,16 @@
     });
 
     $("#btnpdf").click(() => {
-        const tableHtml = $('#tbshow').prop('outerHTML');
-        const arrPrint = { "title": getTitleText(), "print": createTableToarray() };
-        sessionStorage.setItem("printdata",JSON.stringify(arrPrint));
-        location.href = `?page=printpdflottery`;
+        printPDF();
     });
+
+    const getLottitle = () => {
+        const lotinfo = $("#lotinfo").text();
+        const lotcorrect = $("#lotcorrect").text();
+        const info = lotinfo.split(" ");
+        const correct = lotcorrect.split(" ");
+        return { lotno: info[1], lotdate: info[3], correct: correct[1] };
+    }
 
     const findDataByUnitID = (unitID, arrdata) => {
         $.get(`./api/sellCodeAPI.php?api=getbyunitid&id=${unitID}`, (res) => {
@@ -224,19 +320,6 @@
         ReadPDF(pdfData);
     }
 
-    const checkPDF = async (pdfData) => {
-        try {
-            const reading = await pdfjsLib.getDocument({ data: pdfData }).promise;
-            const pdf = await reading.getPage(1);
-            const page = await pdf.getTextContent();
-            const texts = page.items;
-            console.log(texts[2].str);
-            console.log(texts[5].str);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
     const ReadPDF = async (pdfData) => {
         try {
             const reading = await pdfjsLib.getDocument({ data: pdfData }).promise;
@@ -262,7 +345,8 @@
     function createPDFtoArray(text) {
         const arrs = textToarray(text);
         const groups = groupArray(arrs, 10);
-        localStorage.setItem("pdfdata", JSON.stringify(groups));
+        const data = { title: getLottitle(), data: groups }
+        localStorage.setItem("pdfdata", JSON.stringify(data));
         createTable(groups, true, ".......... ບໍ່ພົບຂໍ້ມູນ PDF ..........");
     }
 
@@ -455,7 +539,7 @@
         $("#btnshow").prop("disabled", rowCount <= 1);
         $("#btnSave").prop("disabled", rowCount <= 1);
         $("#btnReload").prop("disabled", rowCount <= 1);
-        $("#btnexcel").prop("disabled", rowCount <= 1);
+        $("#btnPrint").prop("disabled", rowCount <= 1);
         $("#btnpdf").prop("disabled", rowCount <= 1);
         $("#cbProvince").prop("disabled", rowCount <= 1);
         $("#cbUnit").prop("disabled", rowCount <= 1);
@@ -507,4 +591,147 @@
         // Update the text inside the progress bar
         // $('#progressPDF .progress-bar').text(percent + '%');
     }
+
+    const printPDF = async () => {
+        const tableHtml = $('#tbshow').prop('outerHTML');
+        const arrPrint = { "title": getTitleText(), "print": createTableToarray() };
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDoc = await PDFDocument.create();
+        const fontkit = window.fontkit;
+        try {
+            const fonturl = './font/boonhome-400.otf';
+            const fontBytes = await fetch(fonturl).then((res) => res.arrayBuffer());
+            pdfDoc.registerFontkit(fontkit)
+            const customFont = await pdfDoc.embedFont(fontBytes);
+
+            const A4Landscap = [841.89, 595.28];
+            let page = pdfDoc.addPage(A4Landscap);
+            const fontSize = 14;
+            const topMargin = 10;
+            const leftMargin = 5;
+            const linespace = 5;
+            const { width, height } = page.getSize();
+            const text = arrPrint.title.replace("-", "/").replace("-", "/");
+            const textsize = getTextSize(customFont, text, fontSize);
+            const startY = height - textsize.height;
+            const endX = width - textsize.width;
+
+            page.drawText(text, {
+                x: endX / 2,
+                y: startY - topMargin,
+                size: fontSize,
+                font: customFont,
+            });
+
+            const arrheader = ["ລຳດັບ", "ລະຫັດຜູ້ຂາຍ", "ເລກບິນ", "ຖືກເລກ 1 ໂຕ", "ຖືກເລກ 2 ໂຕ", "ຖືກເລກ 3 ໂຕ", "ຖືກເລກ 4 ໂຕ", "ຖືກເລກ 5 ໂຕ", "ຖືກເລກ 6 ໂຕ", "ລວມ", "ໝາຍເຫດ"];
+            let rowspace = -50;
+            const arrX = [5, 35, 99.33333333333334, 266.5, 336.25, 407.1666666666667, 478.25, 549.25, 620.4166666666666, 691.6666666666666, 776.75];
+            const arrTextwidth = [22, 46.33333333333334, 26.16666666666667, 45.75, 46.91666666666667, 47.08333333333333, 47, 47.16666666666667, 47.25, 17.083333333333336, 35.666666666666664];
+            const arrBorderW = [0, 10, 133, 16, 16, 16, 16, 16, 16, 60, 16];
+            arrheader.forEach((text, index) => {
+                const Row = createRow(page, rgb, arrX[index], -50, text, arrTextwidth[index], 10, customFont, arrBorderW[index], "center");
+            });
+
+            let rowheight = -50 - 21.166666666666664;
+            arrPrint.print.shift();
+            const sumRow = arrPrint.print.pop();
+            arrPrint.print.forEach((lots, index) => {
+                if (rowheight <= -580) {
+                    page = pdfDoc.addPage(A4Landscap);
+                    rowheight = -25;
+                }
+                createRow(page, rgb, arrX[0], rowheight, lots[0], arrTextwidth[0], 10, customFont, arrBorderW[0], "center");
+                createRow(page, rgb, arrX[1], rowheight, lots[1], arrTextwidth[1], 10, customFont, arrBorderW[1], "center");
+                createRow(page, rgb, arrX[2], rowheight, lots[2], arrTextwidth[2], 10, customFont, arrBorderW[2], "center");
+                createRow(page, rgb, arrX[3], rowheight, lots[3], arrTextwidth[3], 10, customFont, arrBorderW[3], "end");
+                createRow(page, rgb, arrX[4], rowheight, lots[4], arrTextwidth[4], 10, customFont, arrBorderW[4], "end");
+                createRow(page, rgb, arrX[5], rowheight, lots[5], arrTextwidth[5], 10, customFont, arrBorderW[5], "end");
+                createRow(page, rgb, arrX[6], rowheight, lots[6], arrTextwidth[6], 10, customFont, arrBorderW[6], "end");
+                createRow(page, rgb, arrX[7], rowheight, lots[7], arrTextwidth[7], 10, customFont, arrBorderW[7], "end");
+                createRow(page, rgb, arrX[8], rowheight, lots[8], arrTextwidth[8], 10, customFont, arrBorderW[8], "end");
+                createRow(page, rgb, arrX[9], rowheight, lots[9], arrTextwidth[9], 10, customFont, arrBorderW[9], "end");
+                createRow(page, rgb, arrX[10], rowheight, lots[10], arrTextwidth[10], 10, customFont, arrBorderW[10], "");
+                rowheight += - 21.166666666666664;
+            });
+
+            //sumRow
+            const borderSumwidth = arrBorderW[0] + arrBorderW[1] + arrBorderW[2] + 16;
+            const textsumWidth = arrTextwidth[0] + arrTextwidth[1] + arrTextwidth[2];
+
+            createRow(page, rgb, arrX[0], rowheight, sumRow[0], textsumWidth, 10, customFont, borderSumwidth, "center");
+            createRow(page, rgb, arrX[3], rowheight, sumRow[1], arrTextwidth[3], 10, customFont, arrBorderW[3], "end");
+            createRow(page, rgb, arrX[4], rowheight, sumRow[2], arrTextwidth[4], 10, customFont, arrBorderW[4], "end");
+            createRow(page, rgb, arrX[5], rowheight, sumRow[3], arrTextwidth[5], 10, customFont, arrBorderW[5], "end");
+            createRow(page, rgb, arrX[6], rowheight, sumRow[4], arrTextwidth[6], 10, customFont, arrBorderW[6], "end");
+            createRow(page, rgb, arrX[7], rowheight, sumRow[5], arrTextwidth[7], 10, customFont, arrBorderW[7], "end");
+            createRow(page, rgb, arrX[8], rowheight, sumRow[6], arrTextwidth[8], 10, customFont, arrBorderW[8], "end");
+            createRow(page, rgb, arrX[9], rowheight, sumRow[7], arrTextwidth[9], 10, customFont, arrBorderW[9], "end");
+            createRow(page, rgb, arrX[10], rowheight, "", arrTextwidth[10], 10, customFont, arrBorderW[10], "end");
+
+            // Serialize the PDF document to bytes
+            const pdfBytes = await pdfDoc.save();
+
+            // Download the PDF (assuming you have this logic)
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${arrPrint.title}.pdf`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error creating PDF:", error);
+        }
+    }
+
+    const getTextSize = (customFont, text, size) => {
+        const textWidth = customFont.widthOfTextAtSize(text, size)
+        const textHeight = customFont.heightAtSize(size) - size + 2
+        return { width: textWidth, height: textHeight, text: text, fontSize: size, font: customFont }
+    }
+
+    const createRow = (page, rgb, x = 0, y = 0, text, textWidth, fontsize, customFont, lineW = 0, textAlign = "start") => {
+        const { width, height } = page.getSize();
+        const textData = getTextSize(customFont, text, fontsize);
+        const pading = 8;
+        const lineY = y + height - textData.height;
+        const lineWidth = textWidth + pading + lineW;
+        const lineHeight = textData.height + pading * 2;
+        let positionX = x;
+        switch (textAlign) {
+            case 'start':
+                positionX = x + pading / 2;
+                break;
+            case 'center':
+                positionX = x + lineWidth / 2 - textData.width / 2;
+                break;
+            case 'end':
+                positionX = x + (lineWidth / 2 - textData.width / 2) * 2 - pading / 2;
+                break;
+            default:
+                positionX = x + pading / 2;
+                break;
+        }
+        const positionY = y + height - textData.height + pading / 1.1;
+        page.drawText(text, {
+            x: positionX,
+            y: positionY,
+            size: fontsize,
+            font: customFont,
+        });
+
+        page.drawRectangle({
+            x: x,
+            y: lineY,
+            width: lineWidth,
+            height: lineHeight,
+            borderColor: rgb(0, 0, 0),
+            borderWidth: 1,
+        });
+
+        return { width: lineWidth, height: lineHeight, y: y + height - textData.height };
+    }
+
 </script>
