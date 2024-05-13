@@ -237,7 +237,7 @@
         const lotcorrect = $("#lotcorrect").text();
         // ຍອດຂາຍ ແຂວງ​ໄຊຍະບູລີ ໜ່ວຍ​ ທ.​ເປ​ ວັນທີ່.​ 19/04/2024
         const lotNoText = lotinfo == "" ? "------" : lotinfo.replace("ງວດທີ່: ", "");
-        const exportFileName = `ຖືກລາງວັນ ແຂວງ ${provinceText == "---ເລືອກແຂວງ---" ? "ທັງໝົດ" : provinceText} ໜ່ວຍ ${unittext == "---ໜ່ວຍທັງໝົດ---" ? "ທັງໝົດ" : unittext} ງວດທີ ${lotNoText.replace("/", "-").replace("/", "-")} ເລກທີ່ອອກ ${lotcorrect == "" ? "------" : lotcorrect.replace("ເລກທີ່ອອກ: ", "")}`;
+        const exportFileName = `ຖືກລາງວັນໜ່ວຍ ${unittext == "---ໜ່ວຍທັງໝົດ---" ? "ທັງໝົດ" : unittext} ງວດທີ ${lotNoText.replace("/", "-").replace("/", "-")} ເລກທີ່ອອກ ${lotcorrect == "" ? "------" : lotcorrect.replace("ເລກທີ່ອອກ: ", "")}`;
         return exportFileName;
     }
 

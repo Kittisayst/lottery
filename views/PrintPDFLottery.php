@@ -132,48 +132,10 @@
         history.back();
     });
 
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        let doc = new jsPDF();
-        doc.text("Hello World ສະບາຍດີ", 10, 10);
-        doc.setFont("Phetsarath ot");
-        doc.setFontType('italic');
-        doc.save("a4.pdf");
-    }
-
     $("#btnprint").click(() => {
         createPDF();
-        // createJSPDF();
     })
 
-    const createJSPDF = () => {
-        const content = document.getElementById('printid'); // Get the inner HTML content
-        const { jsPDF } = window.jspdf; // Correcting access to jsPDF object
-
-        // Create a new jsPDF instance
-        var doc = new jsPDF('l', 'pt', 'a4');
-        var margin = 10;
-
-        // Get the width of the content element
-        var contentWidth = content.offsetWidth;
-
-        // Calculate scale based on content width and page width
-        var scale = (doc.internal.pageSize.width - margin * 2) / contentWidth;
-
-        const viewPDF = (filename) => {
-            doc.output("dataurlnewwindow", { filename });
-        };
-
-        doc.html(content, {
-            x: margin,
-            y: margin,
-            html2canvas: { scale },
-            encoding: 'UTF-8',
-            callback: (pdf) => {
-                viewPDF("html_to_pdf.pdf");
-            }
-        });
-    }
 
     async function createPDF() {
         const { PDFDocument, rgb } = PDFLib;

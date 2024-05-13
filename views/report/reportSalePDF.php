@@ -91,48 +91,48 @@
                     <form id="frmSaveFinancial" class="mt-2">
                         <div class="d-flex gap-2 mb-3">
                             <div class="w-50">
-                                <label for="" class="form-label">ງວດທີ</label>
+                                <label for="txtlotno" class="form-label">ງວດທີ</label>
                                 <input type="text" class="form-control text-center" placeholder="ງວດທີ" id="txtlotno"
                                     value="" disabled>
                             </div>
                             <div class="w-75">
-                                <label for="" class="form-label">ວັນທີ</label>
+                                <label for="txtDate" class="form-label">ວັນທີ</label>
                                 <input type="date" class="form-control text-center" value="<?php echo date("Y-m-d") ?>"
                                     placeholder="ງວດທີ" name="SaveDate" id="txtDate">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="" class="form-label">ຍອດຂາຍ</label>
+                            <label for="txtSales" class="form-label">ຍອດຂາຍ</label>
                             <input type="text" class="form-control text-end" placeholder="ປ້ອນຍອດຂາຍ" id="txtSales"
                                 name="Sales" required disabled>
                         </div>
                         <div class="mb-3 d-flex gap-2">
                             <div class="w-50">
-                                <label for="" class="form-label">ຫັກເບີເຊັນ</label>
+                                <label for="txtpercentage" class="form-label">ຫັກເບີເຊັນ</label>
                                 <input type="text" class="form-control text-center" placeholder="ປ້ອນຫັກເບີເຊັນ"
                                     id="txtpercentage" disabled>
                             </div>
                             <div class="w-50">
-                                <label for="" class="form-label">ເປັນເງິນ</label>
+                                <label for="txtPrice" class="form-label">ເປັນເງິນ</label>
                                 <input type="text" class="form-control text-end" placeholder="ເປັນເງິນ" id="txtPrice"
                                     name="amount" disabled required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="" class="form-label">ເງິນຕ້ອງຖອກ</label>
+                            <label for="txtmoney" class="form-label">ເງິນຕ້ອງຖອກ</label>
                             <input type="text" class="form-control text-end" placeholder="ເງິນຕ້ອງຖອກ" id="txtmoney"
                                 name="money" disabled required>
                         </div>
                         <div class="mb-3">
                             <div>
-                                <label for="" class="form-label">ລາງວັນ</label>
+                                <label for="txtAward" class="form-label">ລາງວັນ</label>
                                 <input type="text" class="form-control text-end" placeholder="ລາງວັນ" id="txtAward"
                                     name="Award" required>
                             </div>
                         </div>
                         <div class="mb-3 d-flex gap-1">
                             <div class="flex-fill">
-                                <label for="Codeaward" class="form-label">ເລກທີລາງວັນ</label>
+                                <label for="txtCodeaward" class="form-label">ເລກທີລາງວັນ</label>
                                 <input type="text" class="form-control text-center" placeholder="ເລກທີລາງວັນ"
                                     id="txtCodeaward" name="Awardno">
                             </div>
@@ -141,7 +141,7 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                            <label for="" class="form-label text-start">
+                            <label for="txttotal" class="form-label text-start">
                                 ຍອດເຫຼືອ <span class='text-warning' id="showWidraw"></span>
                             </label>
                             <input type="text" class="form-control text-end" placeholder="ຍອດເຫຼືອ" id="txttotal"
@@ -154,9 +154,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ປິດ</button>
             </div>
         </div>
     </div>
@@ -195,6 +192,7 @@
                 console.log(pdfdata);
                 $("#modalfinancial").modal('show');
                 $("#modalfinancialLabel").text(`ໜ່ວຍ: ${data['unitName']} ງວດທີ: ${data['lotteryNo']} ວັນທີ: ${data['lotDate']}`);
+                $("#tableSaleData").html("");
                 let Sales = 0;
                 let Award = 0;
                 let Price = 0;

@@ -1,8 +1,8 @@
 <?php
-require_once("./database/connectDB.php");
+require_once ("./database/connectDB.php");
 $conn = new connectDB();
 $connect = $conn->getConnection();
-$sql = "SELECT * FROM tb_lottery ORDER BY lotteryNo DESC LIMIT 31";
+$sql = "SELECT * FROM tb_lottery ORDER BY lotteryNo DESC LIMIT 20";
 $stmt = $connect->prepare($sql);
 $stmt->execute();
 $result = $stmt->fetchAll();
