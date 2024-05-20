@@ -16,6 +16,9 @@ if (isset($_GET['api'])) {
         case 'getall':
             getall();
             break;
+        case 'getunitprovinceall':
+            getunitprovinceall();
+            break;
         case 'getbyid':
             selectByID();
             break;
@@ -37,6 +40,24 @@ function getall()
     $stmt = $db->prepare($sql);
     $stmt->execute();
     $result = $stmt->fetchAll();
+    if ($result) {
+        $conn->createJson($result, "ບັນທຶກສຳເລັດ", true);
+    } else {
+        $conn->createJson(0, "ບັນທຶກຜິດພາດ", false);
+    }
+}
+
+function getunitprovinceall()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $db = $conn->getConnection();
+    $sql = "SELECT * FROM tb_machine
+    INNER JOIN tb_unit ON tb_machine.UnitID = tb_unit.unitID
+    INNER JOIN tb_province ON tb_unit.provinceID = tb_province.pid WHERE tb_machine.UnitID=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$_GET['id']]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     if ($result) {
         $conn->createJson($result, "ບັນທຶກສຳເລັດ", true);
     } else {

@@ -11,10 +11,20 @@
         <div class="card-body bg-light">
             <form id="frmSave" class="d-flex gap-5">
                 <div class="col">
-                    <div class="mb-3">
-                        <label for="txtno" class="form-label">ເລກທີ</label>
-                        <input type="text" id="txtno" name="lotteryNo" class="form-control" placeholder="ເລກທີ"
-                            required>
+                    <div class="mb-3 d-flex gap-2">
+                        <div class="col">
+                            <label for="txtno" class="form-label">ເລກທີ</label>
+                            <input type="text" id="txtno" name="lotteryNo" class="form-control" placeholder="ເລກທີ"
+                                required>
+                        </div>
+                        <div class="col">
+                            <label for="cblotID" class="form-label">ເລກທີໃນລະບົບ</label>
+                            <select class="form-select" name="lotID" id="cblotID" required>
+                                <?php
+                                require_once "./database/LotteryOption.php";
+                                ?>
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label for="datepicker" class="form-label">ວັນທີ</label>
@@ -93,13 +103,14 @@
         $("#frmSave").submit((e) => {
             e.preventDefault();
             const frm = $("#frmSave").serializeArray();
-            if (isDateFormat(frm[1].value) && frm[1].value != "01/01/1970") {
+            if (isDateFormat(frm[2].value) && frm[2].value != "01/01/1970") {
                 $("#btnSave").attr("disabled", "disabled");
                 if (arrDataPDF.length > 0) {
                     const fileInput = document.getElementById('txtpdf');
                     const file = fileInput.files[0];
                     const lotteryNo = frm[0].value;
-                    const lotdate = frm[1].value;
+                    const lotID = frm[1].value;
+                    const lotdate = frm[2].value;
                     const fileName = file.name;
                     const fileSize = file.size / 1024;
                     const pdfData = [];
@@ -119,6 +130,7 @@
                         if (index == arrDataPDF.length - 1) {
                             const createData = {
                                 "lotteryNo": lotteryNo,
+                                "lotteryID": lotID,
                                 "lotDate": lotdate,
                                 "FileName": fileName,
                                 "fileSize": fileSize.toFixed(2),
@@ -126,6 +138,7 @@
                                 "UserID": UserID
                             };
                             //send to api
+                            // console.log(createData);
                             save(createData);
 
                         }
@@ -146,7 +159,6 @@
 
     const save = (createData) => {
         $.post(`./api/SalePDFAPI.php?api=create`, createData, (res) => {
-            console.log(res);
             if (res.state) {
                 Swal.fire({
                     title: res.message,

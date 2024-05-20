@@ -10,6 +10,9 @@ if (isset($_GET['api'])) {
         case 'delete':
             delete();
             break;
+        case 'getbylotteryno':
+            getByLotteryNo();
+            break;
         default:
             # code...
             break;
@@ -20,18 +23,23 @@ function create()
 {
     require_once ("../database/connectDB.php");
     $conn = new connectDB();
+    $date = DateTime::createFromFormat('d/m/Y', $_POST['lotDate']);
+    $formattedDate = $date->format('Y-m-d');
     $db = $conn->getConnection();
     if (!isSame($_POST['lotteryNo'])) {
+        $date = DateTime::createFromFormat('d/m/Y', $_POST['lotDate']);
+        $formattedDate = $date->format('Y-m-d');
         $data = [
             null,
+            $_POST['lotteryID'],
             $_POST['lotteryNo'],
-            date("Y-m-d", strtotime($_POST['lotDate'])),
+            $formattedDate,
             $_POST['FileName'],
             $_POST['fileSize'],
             $_POST['pdfData'],
             $_POST['UserID'],
         ];
-        $sql = "INSERT INTO tb_salepdf VALUES(?,?,?,?,?,?,?)";
+        $sql = "INSERT INTO tb_salepdf VALUES(?,?,?,?,?,?,?,?)";
         $stmt = $db->prepare($sql);
         $stmt->execute($data);
         if ($stmt) {
@@ -81,4 +89,21 @@ function isSame($lotno)
     $stmt = $connect->prepare($sql);
     $stmt->execute([$lotno]);
     return $stmt->rowCount() > 0;
+}
+
+function getByLotteryNo()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT * FROM tb_salepdf WHERE lotteryID=?";
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$_GET['lotno']]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($result) {
+        $conn->createJson($result, "ຂໍ້ມູນ PDF ການຂາຍ", true);
+    } else {
+        $conn->createJson([], "ຂໍ້ມູນ PDF ການຂາຍ", false);
+    }
+
 }

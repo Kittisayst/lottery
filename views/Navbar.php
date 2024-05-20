@@ -49,7 +49,7 @@ $isaddmint = $_COOKIE['user'] == 1;
                         <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-calendar'></i> ລາຍງານປ້ອນຂໍ້ມູນທັງໝົດ</a></li>
                         <li><a class="dropdown-item" href="?page=reportfinancial"><i class='bx bxs-group'></i> ລາຍງານປ້ອນຂໍ້ມູນເປັນໜ່ວຍ</a></li>
                         <li><a class="dropdown-item" href="?page=reportpayment"><i class='bx bx-money-withdraw'></i> ລາຍງານການຖອກເງິນ</a></li>
-                        <li><a class="dropdown-item" href="?page=reportsalepdf"><i class="bi bi-file-pdf-fill"></i> ລາຍງານ PDF ການຂາຍ</a></li>
+                        <li><a class="dropdown-item" href="?page=reportmachine"><i class="bi bi-send-x-fill"></i> ລາຍງານເຄື່ອງທີ່ບໍ່ເປີດຂາຍ</a></li>
                     </ul>
                 </li>
             </ul>

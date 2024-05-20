@@ -13,12 +13,6 @@
     font-weight: bold;
 }
 
-.content {
-    /* Styles for the content to be printed */
-    color: black;
-    /* Add more styles as needed */
-}
-
 /* Hide elements not to be printed */
 .no-print {
     display: none;
@@ -65,10 +59,6 @@
     }
 
     footer {
-        display: none;
-    }
-
-    #btnbackdddd {
         display: none;
     }
 

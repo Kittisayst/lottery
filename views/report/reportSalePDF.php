@@ -306,6 +306,15 @@
         return Number(tonumber);
     }
 
+    const formatMoney = (money) => {
+        const formattedValue = new Intl.NumberFormat('en-US').format(unMoney(money));
+        return formattedValue;
+    }
+
+    const unMoney = (money) => {
+        return money.replace(/[^0-9.-]+/g, "");
+    }
+
     const myMoney = (number) => {
         const formattedNumber = number.toLocaleString();
         return formattedNumber;
@@ -316,15 +325,6 @@
         const text = unMoney(element.val());
         const format = formatMoney(text);
         element.val(format);
-    }
-
-    const formatMoney = (money) => {
-        const formattedValue = new Intl.NumberFormat('en-US').format(unMoney(money));
-        return formattedValue;
-    }
-
-    const unMoney = (money) => {
-        return money.replace(/[^0-9.-]+/g, "");
     }
 
     const jdateTimeNow = () => {

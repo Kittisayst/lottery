@@ -80,6 +80,7 @@
 
 <body>
     <?php
+    date_default_timezone_set('Asia/Bangkok');
     include_once ("./app.php");
     ?>
 </body>

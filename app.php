@@ -41,6 +41,7 @@ if ($login->isLogin()) {
     new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນທັງໝົດ");
     new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");
     new Router("reportsalepdf", "./views/report/reportSalePDF.php", "ລາຍງານ PDF ການຂາຍ");
+    new Router("reportmachine", "./views/report/reportMachine.php", "ລາຍງານເຄື່ອງທີ່ບໍ່ເປີດຂາຍ");
     // Debt
     new Router("debt", "./views/Debt.php", "ລາຍການທວງໜີ້");
     new Router("financialhistory", "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");

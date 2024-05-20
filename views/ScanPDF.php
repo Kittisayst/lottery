@@ -352,7 +352,7 @@
         $("#saveUnitSalesAll").on("submit", async (e) => {
             e.preventDefault();
             $("#btnScanUnit").attr("disabled", true);
-            const apiSaveUnitPDF = [];
+            const financials = [];
             // Using Promise.all to wait for all async operations to finish before proceeding
             await Promise.all(SaveDatas.map(async (data, idx) => {
                 // Using for loop instead of forEach to handle async/await properly
@@ -373,26 +373,34 @@
                         const ConvertItemPDF = pdfSale2Json.map(item => typeof item === 'string' ? JSON.parse(item) : item);
                         const machinecodes = ConvertItemPDF.map(item => item['machineCode']);
                         const saveByUnit = [];
-
+                        let Sales = 0;
+                        let Award = 0;
                         unitMachineJson.data.forEach(value => {
                             let lotdata = {};
                             if (machinecodes.includes(value['machineCode'])) {
                                 lotdata = ConvertItemPDF.find(data => data['machineCode'] == value['machineCode']);
-                            } else {
-                                lotdata = { "machineCode": value['machineCode'], Sales: '0', Award: '0', Percentage: '0', Price: '0', Amount: '0' };
+                                //ຄິດໄລ່ການຂາຍ
+                                const calSales = convertMoney(lotdata);
+                                Sales += calSales.Sales;
+                                Award += calSales.Award;
                             }
-                            saveByUnit.push(lotdata);
                         });
-
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = String(today.getMonth() + 1).padStart(2, '0');
+                        const day = String(today.getDate()).padStart(2, '0');
+                        const formattedDate = `${year}-${month}-${day}`;
                         const values = {
-                            "salePDFID": <?= $_GET["id"] ?>,
                             "unitID": unit.unitID,
-                            "lotteryID": datas.lotteryID, // Corrected variable name
-                            "comment": datas.comment, // Corrected variable name
-                            "pdfData": JSON.stringify(saveByUnit)
+                            "lotteryID": datas.lotteryID,
+                            "Sales": Sales,
+                            "Percentage": unit.Percentage,
+                            "Award": Award,
+                            "Awardno": "0",
+                            "SaveDate": formattedDate,
+                            "userID": <?= $_COOKIE['user'] ?>
                         };
-                        console.log(idx, values);
-                        apiSaveUnitPDF.push(values);
+                        financials.push(values);
                     }
                     $(`#${data.provincelistID}`).html(`<span class='text-success'>ກວດສອບຂໍ້ມູນການຂາຍແຕ່ລະໜ່ວຍສຳເລັດ</span>`);
                 }
@@ -401,16 +409,18 @@
             $("#btnScanUnit").hide();
             $("#btnsaveall").click(() => {
                 $("#btnsaveall").attr("disabled", true);
-                apiSaveUnitPDF.forEach((value, index) => {
+                financials.forEach((value, index) => {
                     setTimeout(() => {
-                        const strprogress = progressSaveAll(apiSaveUnitPDF.length, index + 1);
-                        $.post("./api/PDFDataAPI.php?api=create", value, (res) => {
+                        const url = `./api/FinancialAPI.php?api=create&id=${value.lotteryID}`;
+                        console.log(url);
+                        $.post(url, value, (res) => {
                             console.log(res);
                         });
-                        $("#progressSaveall").html(strprogress);
-                        if (apiSaveUnitPDF.length == index + 1) {
+                        const strProgress = progressSaveAll(financials.length, index);
+                        $("#progressSaveall").html(strProgress);
+                        if (financials.length - 1 == index) {
                             Swal.fire({
-                                title: "ບັນທຶກຂໍ້ມູນການຂາຍທັງໝົດສຳເລັດ",
+                                text: "ບັນທຶກຂໍ້ມູນການຂາຍທັງໝົດສຳເລັດ",
                                 icon: "success"
                             }).then(() => location.reload());
                         }

@@ -16,6 +16,9 @@ if (isset($_GET['api'])) {
         case 'update':
             update();
             break;
+        case 'getlotbydate':
+            getlotByDate();
+            break;
         default:
             # code...
             break;
@@ -24,7 +27,7 @@ if (isset($_GET['api'])) {
 
 function getLotterys()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT * FROM tb_lottery ORDER BY lotteryNo DESC";
@@ -40,7 +43,7 @@ function getLotterys()
 
 function getLotteryByID($ID)
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT * FROM tb_lottery WHERE lotteryID=?";
@@ -56,7 +59,7 @@ function getLotteryByID($ID)
 
 function create()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $lotdata = [null, $_POST['lotteryNo'], $_POST['lotteryCorrect'], $_POST['lotDate']];
@@ -76,7 +79,7 @@ function create()
 
 function update()
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $lotdata = [$_POST['lotteryNo'], $_POST['lotteryCorrect'], $_POST['lotDate'], $_POST['lotteryID']];
@@ -92,7 +95,7 @@ function update()
 
 function checking($lotteryNo)
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT COUNT(*) AS lotCount FROM tb_lottery WHERE lotteryNo=?";
@@ -104,7 +107,7 @@ function checking($lotteryNo)
 
 function checkingUpdate($lotteryNo)
 {
-    require_once("../database/connectDB.php");
+    require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $connect = $conn->getConnection();
     $sql = "SELECT COUNT(*) AS lotCount FROM tb_lottery WHERE lotteryNo=?";
@@ -112,4 +115,24 @@ function checkingUpdate($lotteryNo)
     $stmt->execute([$lotteryNo]);
     $result = $stmt->fetchAll();
     return $result[0]['lotCount'];
+}
+function getlotByDate()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT * FROM tb_lottery WHERE lotDate BETWEEN ? AND ?";
+    $dateStart = convertDate($_GET['datestart']);
+    $dateEnd = convertDate($_GET['dateend']);
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$dateStart, $dateEnd]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $conn->createJson($result, "ແກ້ໄຂງວດສຳເລັດ", true);
+}
+
+function convertDate($StrDate)
+{
+    $date = DateTime::createFromFormat('d/m/Y', $StrDate);
+    $formattedDate = $date->format('Y-m-d');
+    return $formattedDate;
 }
