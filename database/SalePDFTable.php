@@ -2,7 +2,9 @@
 require_once ("./database/connectDB.php");
 $connnect = new connectDB();
 $db = $connnect->getConnection();
-$sql = "SELECT * FROM tb_salepdf ORDER BY lotteryNo DESC LIMIT 35";
+$sql = "SELECT salePDFID,tb_salepdf.lotteryID,tb_salepdf.lotteryNo AS pdflotno,tb_lottery.lotteryNo AS lotno,tb_salepdf.lotDate,FileName,
+fileSize,pdfData,UserID FROM tb_salepdf
+INNER JOIN tb_lottery ON tb_salepdf.lotteryID = tb_lottery.lotteryID ORDER BY tb_salepdf.lotteryNo DESC LIMIT 35";
 $stmt = $db->prepare($sql);
 $stmt->execute();
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -12,18 +14,22 @@ $index = 0;
 foreach ($result as $row) {
     $index++;
     $salePDFID = $row['salePDFID'];
-    $lotteryNo = $row['lotteryNo'];
+    $lotteryNo = $row['pdflotno'];
     $lotDate = date("d/m/Y", strtotime($row['lotDate']));
     $FileName = $row['FileName'];
     $fileSize = $row['fileSize'];
+    $lotNo = $row['lotno'];
+    $salePDFID  = $row['salePDFID'];
     $html .= "
     <tr class='text-center'>
         <td>$index</td>
+        <td>$lotNo</td>
         <td>$lotteryNo</td>
         <td>$lotDate</td>
         <td>$FileName</td>
         <td>$fileSize KB</td>
         <td class='d-flex gap-2'>
+            <button class='btn btn-sm btn-primary' onclick='handelEdit($salePDFID)'><i class='bi bi-pencil-square'></i> ແກ້ໄຂ</button>
             <a href='?page=scanpayment&id=$salePDFID&limit=100&pagination=1' class='btn btn-success btn-sm col'>
                 <i class='bi bi-eye-fill'></i> ສະແດງ
             </a>

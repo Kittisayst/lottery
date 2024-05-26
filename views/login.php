@@ -1,12 +1,12 @@
 <div class="container content">
     <div class="d-flex align-items-center justify-content-center vh-100">
-        <div class="col-12 col-md-6 col-lg-5">
+        <div class="col-12 col-md-5 col-lg-4 shadow">
             <div class="card">
                 <div class="card-header position-relative py-5">
-                    <img src="./public/loterry.png"
+                    <img src="./public/imglogo.png"
                         class="position-absolute top-0 start-50 translate-middle border rounded-circle border-5"
-                        alt="lottery logo" width="150px">
-                    <h3 class="position-absolute bottom-0 start-50 translate-middle-x">ລະບົບບັນຊີໂຮງຫວຍ</h3>
+                        alt="lottery logo" width="130px">
+                    <h3 class="position-absolute bottom-0 start-50 translate-middle-x fw-bold">ລະບົບບັນຊີໂຮງຫວຍ</h3>
                 </div>
                 <div class="card-body">
                     <form id="frmlogin">
@@ -22,8 +22,8 @@
                         </div>
                         <div id="ms" class="mb-3 text-danger">
                         </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-lg btn-primary w-100">ເຂົ້າສູ່ລະບົບ</button>
+                        <div class="mb-3 mt-4">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> ເຂົ້າສູ່ລະບົບ</button>
                         </div>
                     </form>
                 </div>

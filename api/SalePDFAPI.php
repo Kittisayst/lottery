@@ -7,11 +7,17 @@ if (isset($_GET['api'])) {
         case 'create':
             create();
             break;
+        case 'update':
+            update();
+            break;
         case 'delete':
             delete();
             break;
         case 'getbylotteryno':
             getByLotteryNo();
+            break;
+        case 'getbyid':
+            getbyid();
             break;
         default:
             # code...
@@ -51,6 +57,24 @@ function create()
         $conn->createJson("warning", "ເລກທີ່ " . $_POST['lotteryNo'] . " ໄດ້ບັນທຶກແລ້ວ", false);
     }
 
+}
+
+function update()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $db = $conn->getConnection();
+    $date = DateTime::createFromFormat('d/m/Y', $_POST['lotDate']);
+    $formattedDate = $date->format('Y-m-d');
+    $data = [$_POST['lotteryID'], $_POST['lotteryNo'], $formattedDate, $_GET['id']];
+    $sql = "UPDATE tb_salepdf SET lotteryID=?,lotteryNo=?,lotDate=? WHERE salePDFID=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute($data);
+    if ($stmt) {
+        $conn->createJson("success", "ແກ້ໄຂ PDF ການຂາຍ ສຳເລັດ", true);
+    } else {
+        $conn->createJson("error", "ແກ້ໄຂ PDF ການຂາຍ ຜິດພາດ", false);
+    }
 }
 
 function delete()
@@ -105,5 +129,21 @@ function getByLotteryNo()
     } else {
         $conn->createJson([], "ຂໍ້ມູນ PDF ການຂາຍ", false);
     }
+}
 
+
+function getbyid()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT * FROM tb_salepdf WHERE salePDFID=?";
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$_GET['id']]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($result) {
+        $conn->createJson($result[0], "ຂໍ້ມູນ PDF ການຂາຍ", true);
+    } else {
+        $conn->createJson([], "ຂໍ້ມູນ PDF ການຂາຍ", false);
+    }
 }

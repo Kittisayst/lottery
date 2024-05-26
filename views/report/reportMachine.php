@@ -202,12 +202,14 @@
         });
 
         const colTotal = [];
-        createColumns.forEach(data => {
+        const sumMachine = [];
+        createColumns.forEach((data, mindex) => {
             //ສະແດງວັນທີ
             $("#colDate").attr("colspan", createColumns.length);
             $('#colDateValue').append($(`<td class="text-center" style="font-size: smaller;">${data.lotdate}</td>`));
             //ສະແດງຈຳນວນຂາຍ
             let sum = 0;
+            sumMachine.push(data.columns.map(item => item.value));
             data.columns.forEach((item, index) => {
                 var row = $('#tableData tr').eq(index);
                 const rowBG = item.value == 0 ? "bg-success" : "bg-danger";
@@ -216,12 +218,33 @@
             });
             colTotal.push(sum);
         });
+
         let strColTotal = "";
+        let amount = 0;
         colTotal.forEach(col => {
             strColTotal += `<td>${col}</td>`;
+            amount+=col;
         });
         //ລວມ
-        $("#tableData").append($(`<tr class="text-center"><td colspan="4">ລວມ</td>${strColTotal}</tr>`));
+        $("#tableData").append($(`<tr class="text-center" id="rowAmount"><td colspan="4">ລວມ</td>${strColTotal}<td>${amount}</td></tr>`));
+        //ລວມແຕ່ລະໜ່ວຍ
+        const columnSums = [];
+        for (let col = 0; col < sumMachine[0].length; col++) {
+            let sum = 0;
+            for (let row = 0; row < sumMachine.length; row++) {
+                sum += sumMachine[row][col];
+            }
+            columnSums.push(sum);
+        }
+        //ສະແດງຫ້ອງລ່ວມແຕ່ລະໜ່ວຍ
+        $("#colDate").attr("colspan", createColumns.length + 1);
+        $('#colDateValue').append($(`<td class="text-center" style="font-size: smaller;">ລວມ</td>`));
+        let sumUnit = 0;
+        columnSums.forEach((sum, index) => {
+            var row = $('#tableData tr').eq(index);
+            row.append($(`<td class="col text-center pt-sm bg-info" style="font-size: smaller;">${sum}</td>`));
+            sumUnit += sum;
+        });
     }
 
     $("#cbProvince").on("change", (e) => {

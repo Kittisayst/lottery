@@ -53,7 +53,7 @@
     <link rel="stylesheet" href="./index.css">
     <style>
         body {
-            background-image: url('./public/loterrybg30.png');
+            background-image: url('./public/imglogo30.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
