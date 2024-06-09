@@ -38,12 +38,13 @@ if ($login->isLogin()) {
     new Router("printsalepdf","./views/PrintSalePDF.php", "ປີ້ນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
     new Router("printpdflottery","./views/PrintPDFLottery.php", "ອ່ານ PDF ຖືກລາງວັນ");
     //Reports
-    new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການປ້ອນຂໍ້ມູນທັງໝົດ");
-    new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນ");
+    new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການຂາຍ");
+    new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນປະຈຳວັນ");
     new Router("reportsalepdf", "./views/report/reportSalePDF.php", "ລາຍງານ PDF ການຂາຍ");
     new Router("reportmachine", "./views/report/reportMachine.php", "ລາຍງານເຄື່ອງທີ່ບໍ່ເປີດຂາຍ");
     // Debt
-    new Router("debt", "./views/Debt.php", "ລາຍການທວງໜີ້");
+    new Router("debt", "./views/Debt.php", "ໃບແຈ້ງໜີ້/Invoice");
+    new Router("debtreport", "./views/report/Debt_report.php", "ລາຍງານໜີ້ຕ້ອງຮັບ-ຕ້ອງສົ່ງ");
     new Router("financialhistory", "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");
     //footer
     require_once ("./views/Footer.php");
