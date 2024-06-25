@@ -30,6 +30,9 @@ if (isset($_GET['api'])) {
         case 'getUpdateState':
             updateState();
             break;
+        case 'getreportdebt':
+            getReportDebt();
+            break;
         default:
             # code...
             break;
@@ -113,6 +116,28 @@ function getFinancials()
     $stm = $connect->prepare($sql);
     $stm->execute();
     $result = $stm->fetchAll();
+    $conn->createJson($result, "ຂໍ້ມູນທັງໝົດ", true);
+}
+
+function getReportDebt()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = 'SELECT * FROM tb_financail
+    INNER JOIN tb_unit ON tb_financail.UnitID=tb_unit.unitID
+    INNER JOIN tb_province ON tb_province.pid = tb_unit.provinceID
+    INNER JOIN tb_lottery ON tb_financail.lotteryID = tb_lottery.lotteryID
+    WHERE MONTH(tb_lottery.lotDate)=? AND YEAR(tb_lottery.lotDate)=? AND tb_unit.provinceID=?';
+    $data = [$_GET['month'], $_GET['year'], $_GET['provinceid']];
+    if ($_GET["unitid"] != "0") {
+        $data = [$_GET['month'], $_GET['year'], $_GET['provinceid'], $_GET['unitid']];
+        $sql .=" AND tb_unit.unitID=?";
+    }
+    $sql .=" ORDER BY tb_financail.FinancialID DESC";
+    $stm = $connect->prepare($sql);
+    $stm->execute($data);
+    $result = $stm->fetchAll(PDO::FETCH_ASSOC);
     $conn->createJson($result, "ຂໍ້ມູນທັງໝົດ", true);
 }
 

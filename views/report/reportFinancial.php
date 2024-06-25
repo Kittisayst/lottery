@@ -51,8 +51,8 @@
                 <th scope="col">ໜ່ວຍ</th>
                 <th scope="col">ຫັກເບີເຊັນ</th>
                 <th scope="col">ຍອດຂາຍ</th>
-                <th scope="col">ລາງວັນ</th>
                 <th scope="col">ເປີເຊັນ</th>
+                <th scope="col">ລາງວັນ</th>                
                 <th scope="col">ຍອດເຫຼືອ</th>
             </tr>
         </thead>

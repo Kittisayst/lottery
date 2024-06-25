@@ -79,8 +79,8 @@ function CreateTableData($result)
         <tr class="text-end">
             <td colspan="3"></td>
             <td><?= number_format($totalSales) ?></td>
-            <td><?= number_format($totalAward) ?></td>
             <td><?= number_format($totalPercent) ?></td>
+            <td><?= number_format($totalAward) ?></td>            
             <td><?= number_format($totalFinal) ?></td>
         </tr>
 <?php
