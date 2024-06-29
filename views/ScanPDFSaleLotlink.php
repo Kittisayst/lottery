@@ -222,12 +222,12 @@
                 const pdf = await reading.getPage(pageCount);
                 const page = await pdf.getTextContent();
                 const texts = page.items.map(item => {
-                    createTitle(item.str);
                     return item.str;
                 }).join('|');
-                const spaceofpage = pageCount < reading.numPages ? " " : ""
+                const spaceofpage = pageCount < reading.numPages ? "|" : "|"
                 pdfTexts += texts + spaceofpage;
             }
+            console.log(pdfTexts);
             parseTableFromText(pdfTexts);
         } catch (error) {
             console.log(error);
@@ -236,10 +236,11 @@
     }
 
     function parseTableFromText(text) {
-        const arrs = textToarray(text);
-        const groups = groupArray(arrs, 7);
-        arrDataPDF.unshift(...groups);
-        createTable(groups);
+        // const arrs = textToarray(text);
+        // const groups = groupArray(arrs, 3);
+        // console.log(groups);
+        // arrDataPDF.unshift(...groups);
+        // createTable(groups);
     }
 
     function createTable(tableData) {
@@ -318,22 +319,26 @@
     }
 
     function textToarray(text) {
-        const splitText = text.split("|");
+        console.log(text);
+        const cleanedStr = text
+            .replace(/\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|/g, "|$1,$2,$3|")
+            .replace(/\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|/g, "|$1,$2|");
+
+        const splitText = cleanedStr.split("|");
         const filteredText = splitText.filter(
             item => item.trim() !== "" && !/^\d{2}\/\d{2}\/\d{4}\t\d{2}:\d{2}:\d{2}$/.test(item)
         );
-
         const numbersArray = filteredText.filter(item => {
             const value = item.replace(",", "");
             const num = parseFloat(value);
             return !isNaN(num);
         });
 
-        numbersArray.shift();
-        numbersArray.shift();
-        numbersArray.shift();
-        numbersArray.shift();
-        numbersArray.shift();
+        // numbersArray.shift();
+        // numbersArray.shift();
+        // numbersArray.shift();
+        // numbersArray.shift();
+        // numbersArray.shift();
         return numbersArray;
     }
 
@@ -343,22 +348,19 @@
         for (let i = 0; i < arr.length; i += groupSize) {
             const group = arr.slice(i, i + groupSize);
             const num = Number(group[0]);
-            //ກວດສອບລຳດັບຕ້ອງລຽງກັນ
             if (index == num) {
                 groupedArrays.push(group);
                 index++;
             } else {
                 //ລົບລາຄາລວ່ມ
                 arr.splice(arr[i], 1); //ລົບລະຫັດຜູ້ຂາຍ
-                arr.splice(arr[i + 1], 1); //ລົບມູນຄ່າຂາຍໄດ້
-                arr.splice(arr[i + 2], 1); //ລົບມູນຄ່າຖືກລາງວັນ
-                arr.splice(arr[i + 3], 1); //ລົບຜູ້ຂາຍໜ່ວຍ %
-                arr.splice(arr[i + 4], 1); //ລົບຜູ້ຂາຍໜ່ວຍ ມູນຄ່າ
-                arr.splice(arr[i + 5], 1); //ລົບຜິດດ່ຽງ
-                i -= groupSize;
+                arr.splice(arr[i], 1);
+                const checkarr = arr[i].split(" ");
+                console.log(checkarr.length);
+                i -= 2;
             }
+            // groupedArrays.push(group);
         }
-        // localStorage.setItem("pdfdata",JSON.stringify(groupedArrays));
         return groupedArrays;
     }
 
@@ -434,5 +436,5 @@
         return moment(dateString, "DD/MM/YYYY", true).isValid();
     }
 
-    $("#alert_title").text($("#alert_title").text()+" (Lao Lot)");
+    $("#alert_title").text($("#alert_title").text() + " (Lot Link)");
 </script>

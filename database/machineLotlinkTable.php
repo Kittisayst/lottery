@@ -1,10 +1,11 @@
 <?php
+
 if (isset($_GET['pid']) && $_GET['unitID']) {
     require_once ("./database/connectDB.php");
     $connnect = new connectDB();
     $db = $connnect->getConnection();
-    $sql = "SELECT * FROM tb_machine
-    INNER JOIN tb_unit ON tb_machine.UnitID=tb_unit.unitID
+    $sql = "SELECT * FROM tb_machinelotlink
+    INNER JOIN tb_unit ON tb_machinelotlink.UnitID=tb_unit.unitID
     WHERE tb_unit.provinceID=? AND tb_unit.unitID=?";
     $stmt = $db->prepare($sql);
     $stmt->execute([$_GET['pid'], $_GET['unitID']]);
@@ -42,7 +43,7 @@ if (isset($_GET['pid']) && $_GET['unitID']) {
         const res = await fetch(`./api/ProvinceAPI.php?api=getprovinces`);
         const read = await res.json();
         const province = read.data;
-        const fetmachine = await fetch(`./api/sellCodeAPI.php?api=getbyid&id=${id}`);
+        const fetmachine = await fetch(`./api/sellCodeLotlink.php?api=getbyid&id=${id}`);
         const jsonMachine = await fetmachine.json();
         const machineData = jsonMachine.data[0];
 
@@ -94,7 +95,7 @@ if (isset($_GET['pid']) && $_GET['unitID']) {
         frmMachine.submit((e) => {
             e.preventDefault();
             const frmData = frmMachine.serialize();
-            $.post(`./api/sellCodeAPI.php?api=update&id=${id}`, frmData, (res) => {
+            $.post(`./api/sellCodeLotlink.php?api=update&id=${id}`, frmData, (res) => {
                 if (res.state) {
                     Swal.fire({
                         position: "center",
@@ -119,7 +120,7 @@ if (isset($_GET['pid']) && $_GET['unitID']) {
             confirmButtonText: 'ລົບຂໍ້ມູນ'
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post(`./api/sellCodeAPI.php?api=delete&id=${id}`, (res) => {
+                $.post(`./api/sellCodeLotlink.php?api=delete&id=${id}`, (res) => {
                     if (res.state) {
                         Swal.fire({
                             position: "center",

@@ -19,7 +19,8 @@ if ($login->isLogin()) {
     //unit
     new Router("formUnit", "./views/form/unit_form.php", "ເພີ່ມຂໍ້ມູນໜ່ວຍ");
     new Router("editunit", "./views/form/edit_unit_form.php", "ແກ້ໄຂຂໍ້ມູນໜ່ວຍ");
-    new Router("lotmachine", "./views/lotmachine.php", "ຈັດການລະຫັດຜູ້ຂາຍ");
+    new Router("lotmachine", "./views/SelectLotMachine.php", "ຈັດການລະຫັດຜູ້ຂາຍ");
+    // new Router("lotmachinelotlink", "./views/lotmachineLotlink.php", "ຈັດການລະຫັດຜູ້ຂາຍ Lot Link");
     //user
     new Router("createuser", "./views/form/user_form.php", "ເພີ່ມຜູ້ໃຊ້ງານ");
     new Router("edituser", "./views/form/edit_user_form.php", "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານ");
@@ -30,9 +31,9 @@ if ($login->isLogin()) {
     new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
     new Router("history", "./views/HistoryPayment.php", "ປະຫວັດການຖອກເງິນ");
     //Read PDF
-    new Router("salepdf","./views/SalePDF.php", "ຂໍ້ມູນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    new Router("salepdf","./views/MainPDFSale.php", "ຂໍ້ມູນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
     new Router("scanpdflottery","./views/ScanPDFlottery.php", "ອ່ານ PDF ບິນຖືກລາງວັນ");
-    new Router("readsalepdf","./views/ScanPDFSale.php", "ອ່ານ PDF ຍອດຂາຍ");
+    new Router("readsalepdf","./views/MainScanSalePDF.php", "ອ່ານ PDF ຍອດຂາຍ");
     new Router("scanpayment","./views/ScanPDF.php", "ອ່ານ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
     //Print page
     new Router("printsalepdf","./views/PrintSalePDF.php", "ປີ້ນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");

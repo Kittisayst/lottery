@@ -44,7 +44,7 @@
         </thead>
         <tbody id="tableData">
             <?php
-            require_once ("./database/machineTable.php");
+            require_once ("./database/machineLotlinkTable.php");
             ?>
         </tbody>
     </table>
@@ -136,7 +136,7 @@
         frmMachine.submit((e) => {
             e.preventDefault();
             const frmData = frmMachine.serialize();
-            $.post(`./api/sellCodeAPI.php?api=create`, frmData, (res) => {
+            $.post(`./api/sellCodeLotlink.php?api=create`, frmData, (res) => {
                 if (res.state) {
                     Swal.fire({
                         position: "center",
@@ -144,7 +144,7 @@
                         title: res.message,
                         showConfirmButton: false,
                         timer: 1500
-                    }).then(() => location.reload());
+                    }).then(()=>location.reload());
                 } else {
                     $("#ms").show();
                     $("#ms").text(res.message);
@@ -172,5 +172,5 @@
         return str;
     }
 
-    $("#alert_title").text($("#alert_title").text() + " (Lao lot)");
+    $("#alert_title").text($("#alert_title").text() + " (Lot Link)");
 </script>

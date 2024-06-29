@@ -55,8 +55,11 @@
     $('#frmlogin').on('submit', (e) => {
         e.preventDefault();
         $fromData = $('#frmlogin').serialize();
+        console.log($fromData);
         $.post(`./api/userAPI.php?api=getlogin`, $fromData, (res, mes) => {
             if (res.state) {
+                const lot = $('#frmlogin').serializeArray();
+                localStorage.setItem("lot", lot[0].value);
                 location.reload();
             } else {
                 $("#ms").html(`<span class="text-danger">${res.message}</span>`);
@@ -66,10 +69,8 @@
 
     $("#laolot").change(() => {
         $("#btnlogin").html(`<i class="bi bi-box-arrow-in-right"></i> ຂົ້າສູ່ລະບົບ (ລາວລອດ)`);
-        console.log("ok1");
     });
     $("#lotlink").change(() => {
-        console.log("ok");
         $("#btnlogin").html(`<i class="bi bi-box-arrow-in-right"></i> ເຂົ້າສູ່ລະບົບ (ລອດລີ້ງ)`);
     });
 </script>

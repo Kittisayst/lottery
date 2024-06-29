@@ -52,6 +52,7 @@ function getLogin($user, $password)
     if ($result) {
         $expiration_time = time() + 3600;
         // Set the cookie with the calculated expiration time
+        setcookie("lot", $_POST['selectlot'], $expiration_time, "/");
         setcookie("user", $result[0]['userID'], $expiration_time, "/");
         $conn->createJson($result[0]['userID'], "ເຂົ້າສູ່ລະບົບສຳເລັດ", true);
     } else {
