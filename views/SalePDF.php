@@ -134,5 +134,5 @@
         return `${condate[2]}/${condate[1]}/${condate[0]}`;
     }
 
-    $("#alert_title").text($("#alert_title").text()+" (Lao Lot)");
+    $("#alert_title").text($("#alert_title").text()+" (ລອດລີ້ງ)");
 </script>

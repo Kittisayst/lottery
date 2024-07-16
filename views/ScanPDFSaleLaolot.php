@@ -36,7 +36,7 @@
                     <div class="mb-3 d-flex gap-2">
                         <div class="col">
                             <label for="txtpdf" class="form-label">ເລືອກໄຟລ໌ PDF</label>
-                            <input type="file" class="form-control" name="pdfFile" id="txtpdf" accept=".pdf" required>
+                            <input type="file" class="form-control" name="pdfFile" id="txtpdf" accept=".xlsx" required>
                         </div>
                         <div class="mt-auto">
                             <button class="btn btn-primary" id="btnscan" type="button" disabled>
@@ -44,9 +44,10 @@
                             </button>
                         </div>
                     </div>
-                    <div class="mt-auto">
-                        <button class="btn btn-success btn-lg w-100" type="submit" id="btnSave" disabled><i
-                                class="bi bi-floppy2-fill"></i> ບັນທຶກ</button>
+                    <div class="mt-auto d-flex gap-2">
+                        <button class="btn btn-success btn-lg w-100" type="submit" id="btnSave" disabled>
+                            <i class="bi bi-floppy2-fill"></i> ບັນທຶກ
+                        </button>
                     </div>
                 </div>
             </form>
@@ -55,6 +56,10 @@
             aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar" style="width: 0%">0%</div>
         </div>
+    </div>
+    <div class="d-flex justify-content-end p-3">
+        <button class="btn btn-warning" id="btnmissingcode"><i class="bi bi-exclamation-triangle"></i>
+            ລະຫັດຄ້າງ</button>
     </div>
     <table class="table table-bordered table-striped" id="tbsales">
         <thead>
@@ -87,6 +92,21 @@
 
 </div>
 
+<!-- Modal Missingcode-->
+<div class="modal fade" id="Modalmissingcode" tabindex="-1" aria-labelledby="missingcodeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 w-100 text-center" id="missingcodeLabel">ລະຫັດຄ້າງ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="txtmissingcode" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const arrDataPDF = [];
 
@@ -99,6 +119,8 @@
         $("#btnscan").click(() => {
             ScanPDF();
         });
+        //
+        $("#btnmissingcode").hide();
         //ກົດປຸ່ມບັນທຶກ
         $("#frmSave").submit((e) => {
             e.preventDefault();
@@ -119,13 +141,14 @@
                         //create Json Data
                         pdfData.push(
                             {
-                                "machineCode": lot[1],
-                                "Sales": lot[2],
-                                "Award": lot[3],
-                                "Percentage": lot[4],
-                                "Price": lot[5],
-                                "Amount": lot[6]
+                                "machineCode": lot.code,
+                                "Sales": lot.sales,
+                                "Award": 0,
+                                "Percentage": lot.Percentage,
+                                "Price": lot.colPercentage,
+                                "Amount": lot.amount
                             });
+
                         //save data when finished loop
                         if (index == arrDataPDF.length - 1) {
                             const createData = {
@@ -140,11 +163,11 @@
                             //send to api
                             // console.log(createData);
                             save(createData);
-
                         }
                         //show progress bar
                         showProgressBar(arrDataPDF.length, index + 1);
                     });
+                    console.log(pdfData);
                 }
             } else {
                 Swal.fire({
@@ -158,7 +181,7 @@
     });
 
     const save = (createData) => {
-        $.post(`./api/SalePDFAPI.php?api=create`, createData, (res) => {
+        $.post(`./api/SalePDFAPILaolot.php?api=create`, createData, (res) => {
             if (res.state) {
                 Swal.fire({
                     title: res.message,
@@ -168,7 +191,7 @@
                     cancelButtonText: "ກັບຄືນ"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        location.href = `?page=scanpayment&id=${res.data}&limit=100&pagination=1`;
+                        location.href = `?page=scanpayment&id=${res.data}`;
                     } else {
                         location.href = "?page=salepdf";
                     }
@@ -191,8 +214,23 @@
         if (file) {
             var reader = new FileReader();
             reader.onload = function (event) {
-                var pdfData = new Uint8Array(event.target.result);
-                extractTextFromPDF(pdfData);
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // Process the workbook here
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+                const lotNodata = json.shift();//ລົບແຖວທຳອິດຫົວຂໍ້
+                showLotDate(lotNodata); //ສະແດງວັນທີ
+                json.pop();//ລົບແຖວສຸດທ້າຍ
+                const convertedArray = json.map(originalObject => {
+                    return {
+                        code: originalObject["__EMPTY"],
+                        sale: originalObject["__EMPTY_1"]
+                    };
+                });
+                extractTextFromPDF(convertedArray);
             };
             reader.readAsArrayBuffer(file);
         } else {
@@ -200,7 +238,9 @@
         }
     }
 
-    function extractTextFromPDF(pdfData) {
+
+
+    function extractTextFromPDF(excelData) {
         // Load PDF document
         //ສະແດງໂຫຼດຂໍ້ມູນ
         $("#tableData").html(`
@@ -211,36 +251,46 @@
                 </td>
             </tr>`);
         $("#btnscan").attr('disabled', "disabled");
-        leadPDF(pdfData);
+        leadPDF(excelData);
     }
+    const leadPDF = async (excelData) => {
+        const resUnitcode = await fetch(`./api/sellCodeLotlink.php?api=getall`);
+        const datas = await resUnitcode.json();
+        const dbCode = datas.data.map(item => Number(item.machineCode));
+        const missingCode = excelData.filter(item => !dbCode.includes(item.code));
+        createMissingValue(missingCode);
+        const unitCodeData = datas.data.map(item => ({
+            Percentage: Number(item.Percentage),
+            UnitID: item.UnitID,
+            code: Number(item.machineCode),
+            machineID: item.machineID,
+            unitID: item.unitID,
+            unitName: item.unitName,
+            withdrawn: Number(item.withdrawn) == 1
+        }));
 
-    const leadPDF = async (pdfData) => {
-        try {
-            const reading = await pdfjsLib.getDocument({ data: pdfData }).promise;
-            let pdfTexts = "";
-            for (let pageCount = 1; pageCount <= reading.numPages; pageCount++) {
-                const pdf = await reading.getPage(pageCount);
-                const page = await pdf.getTextContent();
-                const texts = page.items.map(item => {
-                    return item.str;
-                }).join('|');
-                const spaceofpage = pageCount < reading.numPages ? "|" : "|"
-                pdfTexts += texts + spaceofpage;
+        const createScandata = unitCodeData.map(unit => {
+            const machine = excelData.find(machine => machine.code == unit.code);
+            if (machine) {
+                const money = (machine.sale * unit.Percentage) / 100;
+                const amount = machine.sale - money;
+                return { ...unit, sales: machine.sale, colPercentage: money, amount: amount }
             }
-            console.log(pdfTexts);
-            parseTableFromText(pdfTexts);
-        } catch (error) {
-            console.log(error);
-            return "Error";
-        }
+            return { ...unit, sales: 0, colPercentage: 0, amount: 0 }
+        });
+
+        createTable(createScandata);
     }
 
-    function parseTableFromText(text) {
-        // const arrs = textToarray(text);
-        // const groups = groupArray(arrs, 3);
-        // console.log(groups);
-        // arrDataPDF.unshift(...groups);
-        // createTable(groups);
+    function showLotDate(lotdate) {
+        const value = extractDate(lotdate);
+        $("#datepicker").val(value);
+    }
+
+    function extractDate(obj) {
+        const dateKey = Object.keys(obj).find(key => key.includes("ວັນທີ"));
+        const dateMatch = dateKey.match(/\d{2}\/\d{2}\/\d{4}/);
+        return dateMatch ? dateMatch[0] : null;
     }
 
     function createTable(tableData) {
@@ -252,30 +302,34 @@
         let calpercent = 0;
         let amount = 0;
         //ສະແດງຕາຕະລາງ
+        let paginationCount = tableData.length;
         tableData.forEach((lot, index) => {
             setTimeout(() => {
-                const col = $(`<tr class="text-end"></tr>`);
-                col.html(`<td class="text-center">${lot[0]}</td>
-                    <td class="text-center">${lot[1]}</td>
-                    <td>${lot[2]}</td>
-                    <td>${lot[3]}</td>
-                    <td class="col-1 text-center">${lot[4]}</td>
-                    <td class="col-1">${lot[5]}</td>
-                    <td>${lot[6]}</td>`);
-                $('#tableData').append(col);
-                col.hide();
-                //ລວມເງິນທັງໝົດ
-                const sums = calculator(lot);
-                sales += sums.sales;
-                award += sums.award;
-                calpercent += sums.calpercent;
-                amount += sums.amount;
+                if (lot.sales > 0) {
+                    arrDataPDF.push(lot);
+                    const col = $(`<tr class="text-end"></tr>`);
+                    col.html(`<td class="text-center">${index + 1}</td>
+                    <td class="text-center">${lot.code}</td>
+                    <td>${myMoney(lot.sales)}</td>
+                    <td>${lot.unitName}</td>
+                    <td class="col-1 text-center">${lot.Percentage}</td>
+                    <td class="col-1">${myMoney(lot.colPercentage)}</td>
+                    <td>${myMoney(lot.amount)}</td>`);
+                    $('#tableData').append(col);
+                    col.hide();
+                    // ລວມເງິນທັງໝົດ
+                    sales += lot.sales;
+                    calpercent += lot.colPercentage;
+                    amount += lot.amount;
+                } else {
+                    paginationCount = paginationCount - 1;
+                }
                 showProgressBar(tableData.length, index + 1);
                 if (tableData.length == index + 1) {
                     //ແຖວລວມເງິນທັງໝົດ
                     $("#tableData").append(`<tr class="text-end"><td colspan="2" class="text-center">ລ່ວມທັງໝົດ</td>
                         <td>${myMoney(sales)}</td>
-                        <td>${myMoney(award)}</td>
+                        <td>-</td>
                         <td class="text-center">-</td>
                         <td>${myMoney(calpercent)}</td>
                         <td>${myMoney(amount)}</td>
@@ -284,10 +338,27 @@
                     $("#btnscan").removeAttr("disabled");
                     isShowButton();
                     showCurrentPage(500, 1);
-                    PaginationEvents(tableData, 500);
+                    console.log(tableData.length);
+                    console.log(paginationCount);
+                    PaginationEvents(paginationCount, 500);
                 }
             }, index * 2);
         });
+    }
+
+    function createMissingValue(missingValues) {
+        if (missingValues.length > 0) {
+            $("#btnmissingcode").show();
+            $("#txtmissingcode").attr("rows", missingValues.length);
+            let str = "";
+            missingValues.forEach(item => {
+                str += `${item.code}\t ${item.sale} \n`;
+            });
+            $("#txtmissingcode").val(str);
+            $("#btnmissingcode").click(() => {
+                $("#Modalmissingcode").modal('show');
+            });
+        }
     }
 
     function showCurrentPage(pageSize, currentPage) {
@@ -298,7 +369,7 @@
     }
 
     function PaginationEvents(tableData, buttons) {
-        const countButton = tableData.length / buttons;
+        const countButton = tableData / buttons;
         $("#pagilist").append($(`<li class="page-item"><a class="page-link" href="#" data-page="1">⬅️</a></li>`));
         for (var i = 0; i <= countButton; i++) {
             if (i == 0) {
@@ -316,75 +387,6 @@
             $(this).addClass('active');
             showCurrentPage(buttons, newPage);
         });
-    }
-
-    function textToarray(text) {
-        console.log(text);
-        const cleanedStr = text
-            .replace(/\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|/g, "|$1,$2,$3|")
-            .replace(/\|\s*(\d+)\s*\|\s*,\s*\|\s*(\d+)\s*\|/g, "|$1,$2|");
-
-        const splitText = cleanedStr.split("|");
-        const filteredText = splitText.filter(
-            item => item.trim() !== "" && !/^\d{2}\/\d{2}\/\d{4}\t\d{2}:\d{2}:\d{2}$/.test(item)
-        );
-        const numbersArray = filteredText.filter(item => {
-            const value = item.replace(",", "");
-            const num = parseFloat(value);
-            return !isNaN(num);
-        });
-
-        // numbersArray.shift();
-        // numbersArray.shift();
-        // numbersArray.shift();
-        // numbersArray.shift();
-        // numbersArray.shift();
-        return numbersArray;
-    }
-
-    function groupArray(arr, groupSize) {
-        const groupedArrays = [];
-        let index = 1;
-        for (let i = 0; i < arr.length; i += groupSize) {
-            const group = arr.slice(i, i + groupSize);
-            const num = Number(group[0]);
-            if (index == num) {
-                groupedArrays.push(group);
-                index++;
-            } else {
-                //ລົບລາຄາລວ່ມ
-                arr.splice(arr[i], 1); //ລົບລະຫັດຜູ້ຂາຍ
-                arr.splice(arr[i], 1);
-                const checkarr = arr[i].split(" ");
-                console.log(checkarr.length);
-                i -= 2;
-            }
-            // groupedArrays.push(group);
-        }
-        return groupedArrays;
-    }
-
-    function removeNonNumbers(data) {
-        return data.filter(element => Number.isFinite(Number(element)));
-    }
-
-    let selectTitleIndex = 0;
-    const createTitle = (title) => {
-        selectTitleIndex++;
-        if (selectTitleIndex == 5) {
-            const splitText = title.split(" ");
-            $("#txtno").val(splitText[1]);
-            $("#datepicker").val(splitText[3]);
-        }
-    }
-
-    const calculator = (lot) => {
-        return {
-            sales: str_number(lot[2]),
-            award: str_number(lot[3]),
-            calpercent: str_number(lot[5]),
-            amount: str_number(lot[6])
-        }
     }
 
     const isShowButton = () => {
@@ -436,5 +438,5 @@
         return moment(dateString, "DD/MM/YYYY", true).isValid();
     }
 
-    $("#alert_title").text($("#alert_title").text() + " (Lot Link)");
+    $("#alert_title").text($("#alert_title").text() + " (ລາວລອດ)");
 </script>

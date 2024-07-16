@@ -140,7 +140,6 @@
                             //send to api
                             // console.log(createData);
                             save(createData);
-
                         }
                         //show progress bar
                         showProgressBar(arrDataPDF.length, index + 1);
@@ -434,5 +433,5 @@
         return moment(dateString, "DD/MM/YYYY", true).isValid();
     }
 
-    $("#alert_title").text($("#alert_title").text()+" (Lao Lot)");
+    $("#alert_title").text($("#alert_title").text()+" (ລອດລີ້ງ)");
 </script>

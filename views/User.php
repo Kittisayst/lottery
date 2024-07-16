@@ -9,24 +9,83 @@
                 <th scope="col">#</th>
                 <th scope="col">ຊື່ຜູ້ໃຊ້ງານ</th>
                 <th scope="col">ຜູ້ໃຊ້ງານ</th>
+                <th scope="col">ສິດທິ</th>
                 <th scope="col">ໃຊ້ງານລ່າສຸດ</th>
-                <th scope="col" class="col-1">ຈັດການ</th>
+                <th scope="col" class="col-2">ຈັດການ</th>
             </tr>
         </thead>
         <tbody id="tbdata">
-
+            <?php
+            require_once "./database/TableUser.php";
+            ?>
         </tbody>
     </table>
 </div>
 
 <script>
-    $("#tbdata").load("./database/TableUser.php?api=users", (responseTxt) => {
-
-    });
 
     const edit = (id) => {
         location.href = `?page=edituser&id=${id}`;
     }
+
+    const handelPermission = (id) => {
+        location.href = `?page=permission&id=${id}`;
+    }
+
+    const addPermission = async (id) => {
+        console.log(id);
+        const optionPermiss = await loadPermissions();
+        Swal.fire({
+            title: "ກຳນົດສິດທິ",
+            html: `<form class="px-2" id="frmPermission">
+                    <input type="hidden" name="userID" value="${id}">
+                    <div class="mb-3">
+                        <label for="cbpermission" class="form-label text-start w-100">ສິດທິ</label>
+                        <select class="form-select" id="cbpermission" name="permissionID">
+                        ${optionPermiss}
+                        </select>
+                    </div>
+                    <div>
+                        <button class="btn btn-success w-100" type="submit">ກຳນົດສິດທິ</button>
+                    </div>
+                    </form>
+                    `,
+            showConfirmButton: false,
+            showCloseButton: true,
+            focusCancel: false
+        });
+
+        const frmPermission = $("#frmPermission");
+        frmPermission.on("submit", (e) => {
+            e.preventDefault();
+            $data = frmPermission.serialize();
+            $.post(`./api/DBPermission.php?api=create`, $data, (res) => {
+                if (res.state) {
+                    var selectedText = $('#cbpermission option:selected').text();
+                    $(`#u${id}`).html(selectedText);
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: res.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        })
+    }
+
+    const loadPermissions = async () => {
+        const res = await fetch(`./api/PermissionAPI.php?api=all`);
+        const data = await res.json();
+        const permissions = data.data;
+        let str = "";
+        permissions.forEach(item => {
+            str += `<option value="${item.permissionID}">${item.name}</option>`;
+        });
+        return str;
+    }
+
 
     const deleteuser = (id) => {
         Swal.fire({
@@ -49,37 +108,4 @@
             }
         });
     }
-
-    const show = () => {
-        $.get(`./api/userAPI.php?api=getusers`, (res) => {
-            const users = res.data;
-            users.forEach((user, index) => {
-                const tr = $("<tr></tr>");
-                const action = $(`
-                    <td class="col-2 text-center">
-                        <a href="?page=edituser&id=${user['userID']}" class="btn btn-success btn-sm"><i class='bx bxs-edit' ></i></a>
-                    </td>`);
-                const buttonDelete = $(`<button href="#" class="btn btn-danger btn-sm"><i class='bx bxs-trash' ></i></button>`);
-                buttonDelete.click(() => {
-
-                });
-                action.append(buttonDelete);
-                tr.html(`
-                    <th scope="row" class="text-center">${index + 1}</th>
-                    <td class="text-center">${user['UserName']}</td>
-                    <td class="text-center">${user['User']}</td>
-                    <td class="text-center">${user['log']}</td>
-                   
-                `);
-                tr.append(action);
-                $('#tbdata').append(tr);
-            });
-            new DataTable('#tbshow', {
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/lo.json',
-                },
-            });
-        });
-    }
-    // show();
 </script>

@@ -19,7 +19,7 @@
         </thead>
         <tbody id="tbdata">
             <?php
-            require_once ("./database/SalePDFTable.php");
+            require_once ("./database/SalePDFTableLaolot.php");
             ?>
         </tbody>
     </table>
@@ -78,7 +78,7 @@
             cancelButtonText: 'ຍົກເລີກ',
         }).then((result) => {
             if (result.isConfirmed) {
-                $.get(`./api/SalePDFAPI.php?api=delete&id=${id}`, (res) => {
+                $.get(`./api/SalePDFAPILaolot.php?api=delete&id=${id}`, (res) => {
                     if (res.state) {
                         Swal.fire({
                             position: "center",
@@ -103,7 +103,7 @@
 
     function handelEdit(id) {
         $("#modalEditPDF").modal("show");
-        $.get(`./api/SalePDFAPI.php?api=getbyid&id=${id}`, (res) => {
+        $.get(`./api/SalePDFAPILaolot.php?api=getbyid&id=${id}`, (res) => {
             const pdfData = res.data;
             $("#txtlotno").val(pdfData.lotteryNo);
             $("#cblotid").val(pdfData.lotteryID);
@@ -113,7 +113,7 @@
         $("#frmEdit").on("submit", (e) => {
             e.preventDefault();
             const frmdata = $("#frmEdit").serialize();
-            $.post(`./api/SalePDFAPI.php?api=update&id=${id}`, frmdata, (res) => {
+            $.post(`./api/SalePDFAPILaolot.php?api=update&id=${id}`, frmdata, (res) => {
                 if (res.state) {
                     Swal.fire({
                         text: res.message,
@@ -134,5 +134,5 @@
         return `${condate[2]}/${condate[1]}/${condate[0]}`;
     }
 
-    $("#alert_title").text($("#alert_title").text()+" (Lot Link)");
+    $("#alert_title").text($("#alert_title").text()+" (ລາວລອດ)");
 </script>

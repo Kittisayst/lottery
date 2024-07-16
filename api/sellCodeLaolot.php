@@ -16,6 +16,9 @@ if (isset($_GET['api'])) {
         case 'getall':
             getall();
             break;
+        case 'getcode':
+            selectByCode();
+            break;
         case 'getunitprovinceall':
             getunitprovinceall();
             break;
@@ -36,10 +39,11 @@ function getall()
     require_once ("../database/connectDB.php");
     $conn = new connectDB();
     $db = $conn->getConnection();
-    $sql = "SELECT * FROM tb_machinelotlink";
+    $sql = "SELECT * FROM tb_machinelotlink
+    INNER JOIN tb_unit ON tb_machinelotlink.UnitID = tb_unit.unitID";
     $stmt = $db->prepare($sql);
     $stmt->execute();
-    $result = $stmt->fetchAll();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     if ($result) {
         $conn->createJson($result, "ບັນທຶກສຳເລັດ", true);
     } else {
@@ -114,6 +118,24 @@ function selectByUnitID()
         $conn->createJson($result, "ບັນທຶກສຳເລັດ", true);
     } else {
         $conn->createJson(0, "ບັນທຶກຜິດພາດ", false);
+    }
+}
+
+function selectByCode()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $db = $conn->getConnection();
+    $sql = "SELECT * FROM tb_machinelotlink
+    INNER JOIN tb_unit ON tb_machinelotlink.UnitID = tb_unit.unitID
+    WHERE machineCode=?";
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$_GET['code']]);
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($result) {
+        $conn->createJson($result[0]??[], "code success", true);
+    } else {
+        $conn->createJson(0, "code waring", false);
     }
 }
 

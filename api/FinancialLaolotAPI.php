@@ -1,0 +1,263 @@
+<?php
+header('Content-Type: application/json');
+if (isset($_GET['api'])) {
+    $api = $_GET['api'];
+    switch ($api) {
+        case 'create':
+            create();
+            break;
+        case 'update':
+            update();
+            break;
+        case 'getfinancial':
+            getfinancial();
+            break;
+        case 'getfinancials':
+            getFinancials();
+            break;
+        case 'getreportfinancials':
+            getReportFinancials();
+            break;
+        case 'getfinancialbyunitid':
+            getfinancialID();
+            break;
+        case 'getReprotFinancialSearch':
+            getReprotFinancialSearch();
+            break;
+        case 'getlistPayment':
+            getListToPayment();
+            break;
+        case 'getUpdateState':
+            updateState();
+            break;
+        case 'getreportdebt':
+            getReportDebt();
+            break;
+        default:
+            # code...
+            break;
+    }
+}
+
+function create()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    if (cheking() > 0) {
+        $conn->createJson("warning", "ທ່ານໄດ້ປ້ອນຂໍ້ມູນໜ່ວຍນີ້ແລ້ວ", false);
+    } else {
+        $connect = $conn->getConnection();
+        $sql = "INSERT INTO tb_financaillaolot VALUES(?,?,?,?,?,?,?,?,?,?)";
+        $stm = $connect->prepare($sql);
+        $sales = str_replace(',', '', $_POST['Sales']);
+        $Award = str_replace(',', '', $_POST['Award']);
+        $Data = [null, $_POST['unitID'], $_GET['id'], $sales, $_POST['Percentage'], $Award ?? 0, $_POST['Awardno'], $_POST['SaveDate'], $_POST['userID'], 0];
+        $stm->execute($Data);
+        if ($stm) {
+            $conn->createJson("success", "ບັນທຶກຂໍ້ມູນສຳເລັດ", true);
+        } else {
+            $conn->createJson("error", "ບັນທຶກຂໍ້ມູນຜິດພາດ", false);
+        }
+    }
+}
+
+function update()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "UPDATE tb_financaillaolot SET Sales=?,Award=?,AwardNo=?,UserID=? WHERE FinancialID=?";
+    $stm = $connect->prepare($sql);
+    $sales = str_replace(',', '', $_POST['Sales']);
+    $Award = str_replace(',', '', $_POST['Award']);
+    $Data = [$sales, $Award, $_POST['Awardno'], $_POST['userID'], $_GET['id']];
+    $stm->execute($Data);
+    if ($stm) {
+        $conn->createJson("success", "ແກ້ໄຂຂໍ້ມູນສຳເລັດ", true);
+    } else {
+        $conn->createJson("error", "ແກ້ໄຂຂໍ້ມູນຜິດພາດ", false);
+    }
+}
+
+function cheking()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT COUNT(*) AS fnCount FROM tb_financaillaolot WHERE UnitID=? AND lotteryID=?";
+    $stm = $connect->prepare($sql);
+    $stm->execute([$_POST['unitID'], $_GET['id']]);
+    $result = $stm->fetchAll();
+    return $result[0]['fnCount'];
+}
+
+function getfinancial()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "SELECT COUNT(*) AS fnCount FROM tb_financaillaolot WHERE UnitID=? AND lotteryID=?";
+    $stm = $connect->prepare($sql);
+    $stm->execute([$_GET['UnitID'], $_GET['id']]);
+    $result = $stm->fetchAll();
+    $conn->createJson($result[0]['fnCount'] > 0, "ກວດສອບຂໍ້ມູນ", true);
+}
+
+function getFinancials()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = 'SELECT * FROM tb_financaillaolot
+    INNER JOIN tb_unit ON tb_financaillaolot.UnitID=tb_unit.unitID
+    INNER JOIN tb_province ON tb_province.pid = tb_unit.provinceID
+    INNER JOIN tb_lottery ON tb_financaillaolot.lotteryID = tb_lottery.lotteryID
+    ORDER BY tb_financaillaolot.FinancialID DESC';
+    $stm = $connect->prepare($sql);
+    $stm->execute();
+    $result = $stm->fetchAll();
+    $conn->createJson($result, "ຂໍ້ມູນທັງໝົດ", true);
+}
+
+function getReportDebt()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = 'SELECT * FROM tb_financaillaolot
+    INNER JOIN tb_unit ON tb_financaillaolot.UnitID=tb_unit.unitID
+    INNER JOIN tb_province ON tb_province.pid = tb_unit.provinceID
+    INNER JOIN tb_lottery ON tb_financaillaolot.lotteryID = tb_lottery.lotteryID
+    WHERE MONTH(tb_lottery.lotDate)=? AND YEAR(tb_lottery.lotDate)=? AND tb_unit.provinceID=? ';
+    $data = [$_GET['month'], $_GET['year'], $_GET['provinceid']];
+    if ($_GET["unitid"] != "0") {
+        $data = [$_GET['month'], $_GET['year'], $_GET['provinceid'], $_GET['unitid']];
+        $sql .=" AND tb_unit.unitID=?";
+    }
+    $sql .=" ORDER BY tb_lottery.lotteryID DESC";
+    $stm = $connect->prepare($sql);
+    $stm->execute($data);
+    $result = $stm->fetchAll(PDO::FETCH_ASSOC);
+    $conn->createJson($result, "ຂໍ້ມູນທັງໝົດ", true);
+}
+
+function getReportFinancials()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = 'SELECT * FROM tb_financaillaolot
+    INNER JOIN tb_unit ON tb_financaillaolot.UnitID=tb_unit.unitID
+    INNER JOIN tb_province ON tb_province.pid = tb_unit.provinceID
+    INNER JOIN tb_lottery ON tb_financaillaolot.lotteryID = tb_lottery.lotteryID
+    WHERE MONTH(tb_lottery.lotDate)=?
+    ORDER BY tb_lottery.lotteryNo DESC';
+    $stm = $connect->prepare($sql);
+    $stm->execute([$_GET['month']]);
+    $result = $stm->fetchAll();
+    $conn->createJson($result, "ຂໍ້ມູນທັງໝົດ", true);
+}
+
+function getfinancialID()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = 'SELECT * FROM tb_financaillaolot
+    INNER JOIN tb_lottery ON tb_financaillaolot.lotteryID=tb_lottery.lotteryID
+    INNER JOIN tb_unit ON tb_financaillaolot.UnitID = tb_unit.unitID
+    WHERE tb_financaillaolot.UnitID=? AND tb_financaillaolot.lotteryID=?';
+    $stm = $connect->prepare($sql);
+    $stm->execute([$_GET['unitID'], $_GET['lotteryID']]);
+    $result = $stm->fetchAll();
+    if ($result) {
+        $conn->createJson($result[0], "ຂໍ້ມູນທັງໝົດ", true);
+    } else {
+        $conn->createJson([], "ບໍ່ພົບຂໍ້ມູນ", false);
+    }
+}
+
+function getReprotFinancialSearch()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $startDate = $_POST['startdate'];
+    $endDate = $_POST['enddate'];
+    $provinceID = $_POST['proviceid'] ?? "0";
+    $unitID = $_POST['unitid'] ?? "0";
+    $sql = 'SELECT *
+            FROM tb_financaillaolot
+            INNER JOIN tb_lottery ON  tb_financaillaolot.lotteryID= tb_lottery.lotteryID
+            INNER JOIN tb_unit ON tb_financaillaolot.UnitID = tb_unit.unitID WHERE ';
+    $searchData = array();
+    try {
+        if (empty($startDate) && empty($endDate) && $provinceID == "0" && $unitID == "0") {
+            $conn->createJson([], "ວ່າງເປົ່າ", false);
+        } else {
+            if (!empty($startDate)) {
+                $startDate = date('Y-m-d', strtotime($_POST['startdate'] ?? ""));
+                array_push($searchData, $startDate);
+                $arrLength = count($searchData);
+                $useAnd = $arrLength == 1 ? "" : " AND ";
+                $sql .= $useAnd . "tb_lottery.lotDate >=?";
+            }
+            if (!empty($endDate)) {
+                $endDate = date('Y-m-d', strtotime($_POST['enddate']) ?? "");
+                array_push($searchData, $endDate);
+                $arrLength = count($searchData);
+                $useAnd = $arrLength == 1 ? "" : " AND ";
+                $sql .= $useAnd . "tb_lottery.lotDate <=?";
+            }
+            if ($provinceID != "0") {
+                array_push($searchData, $provinceID);
+                $arrLength = count($searchData);
+                $useAnd = $arrLength == 1 ? "" : " AND ";
+                $sql .= $useAnd . "tb_unit.provinceID=?";
+            }
+            if ($unitID != "0") {
+                array_push($searchData, $unitID);
+                $arrLength = count($searchData);
+                $useAnd = $arrLength == 1 ? "" : " AND ";
+                $sql .= $useAnd . "tb_financaillaolot.UnitID =?";
+            }
+            $stm = $connect->prepare($sql);
+            $stm->execute($searchData);
+            $result = $stm->fetchAll();
+            $conn->createJson($result, "ຄົ້ນຫາຂໍ້ມູນ", true);
+        }
+    } catch (\Throwable $th) {
+        $conn->createJson($th, "errro", true);
+    }
+}
+
+function getListToPayment()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $unitID = $_GET['unitid'];
+    $sql = 'SELECT * FROM tb_financaillaolot
+    INNER JOIN tb_lottery ON tb_financaillaolot.lotteryID = tb_lottery.lotteryID
+    INNER JOIN tb_unit ON tb_financaillaolot.UnitID = tb_unit.unitID
+    WHERE tb_financaillaolot.UnitID=? AND state=0 ORDER BY tb_lottery.lotteryID ASC';
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([$unitID]);
+    $result = $stmt->fetchAll();
+    $conn->createJson($result, "ຂໍ້ມູນການປ້ອນ", true);
+}
+
+function updateState()
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "UPDATE tb_financaillaolot SET state = ? WHERE FinancialID = ?";
+    $stmt = $connect->prepare($sql);
+    $stmt->execute([1, $_POST['FinancialID']]);
+    if ($stmt) {
+        $conn->createJson("success", "ບັນທຶກຄືນເງິນສຳເລັດ", true);
+    } else {
+        $conn->createJson("error", "ບັນທຶກຄືນເງິນຜິດພາດ", false);
+    }
+}

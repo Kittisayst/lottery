@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-if (isset ($_GET['api'])) {
+if (isset($_GET['api'])) {
     $api = $_GET['api'];
     switch ($api) {
         case 'getusers':
@@ -54,6 +54,7 @@ function getLogin($user, $password)
         // Set the cookie with the calculated expiration time
         setcookie("lot", $_POST['selectlot'], $expiration_time, "/");
         setcookie("user", $result[0]['userID'], $expiration_time, "/");
+        timelog($result[0]['userID']);
         $conn->createJson($result[0]['userID'], "ເຂົ້າສູ່ລະບົບສຳເລັດ", true);
     } else {
         $conn->createJson($result, "ຊື່ຜູ້ໃຊ້ງານ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ!", false);
@@ -130,4 +131,16 @@ function delete()
     } else {
         $conn->createJson('', "ລົບຂໍ້ມູນຜູ້ໃຊ້ງານຜິດພາດ", false);
     }
+}
+
+function timelog($userID)
+{
+    require_once ("../database/connectDB.php");
+    $conn = new connectDB();
+    $connect = $conn->getConnection();
+    $sql = "UPDATE tb_user SET log=? WHERE userID=?";
+    $stm = $connect->prepare($sql);
+    date_default_timezone_set('Asia/Vientiane');
+    $currentDateTime = date('d/m/Y h:i A');
+    $stm->execute([$currentDateTime, $userID]);
 }

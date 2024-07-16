@@ -1,3 +1,9 @@
+<?php
+require_once "./database/StartPermission.php";
+$permission = new UsePermission($_COOKIE['user']);
+$unitPermission = $permission->getValue('dataUnit');
+// var_dump(ActionCode::Create);
+?>
 <div class="container-fluid container-lg content">
     <?php require ("./views/Alert.php") ?>
     <form class="d-flex justify-content-between my-2 gap-2" id="fromSearch">

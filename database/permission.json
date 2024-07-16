@@ -1,0 +1,154 @@
+{
+    "permissions": [
+        {
+            "name": "ຈັດການຂໍ້ມູນໜ່ວຍ",
+            "sname":"ໜ່ວຍ",
+            "key": "dataUnit",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ຈັດການຂໍ້ມູນລະຫັດຜູ້ຂາຍ",
+            "sname":"ລະຫັດຜູ້ຂາຍ",
+            "key": "lotmachine",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ຈັດການຂໍ້ມູນແຂວງ",
+            "sname":"ແຂວງ",
+            "key": "province",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ຈັດການຂໍ້ມູນຜູ້ໃຊ້ງານ",
+            "sname":"ຜູ້ໃຊ້ງານ",
+            "key": "user",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ສິດທິການໃຊ້ງານ",
+            "sname":"ສິດທິ",
+            "key": "permission",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ງວດທີ",
+            "sname":"ງວດ",
+            "key": "lottery",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ການປ້ອນຂໍ້ມູນ",
+            "sname":"ປ້ອນຂໍ້ມູນ",
+            "key": "selectlot",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ການຖອກເງິນ",
+            "sname":"ຖອກເງິນ",
+            "key": "payment",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": true,
+            "delete": true
+        },
+        {
+            "name": "ສະແກນ PDF ຍອດຂາຍ",
+            "sname":"PDF ຍອດຂາຍ",
+            "key": "salepdf",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ສະແກນ PDF ບິນຖືກລາງວັນ",
+            "sname":"PDF ຖືກລາງວັນ",
+            "key": "awardpdf",
+            "none": true,
+            "read": true,
+            "create": true,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ການທວງໜີ້",
+            "sname":"ທວງໜີ້",
+            "key": "debt",
+            "none": true,
+            "read": true,
+            "create": false,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ລາຍງານການຂາຍ",
+            "sname":"ລາຍງານການຂາຍ",
+            "key": "reportfinancial",
+            "none": true,
+            "read": true,
+            "create": false,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ລາຍງານໜີ້ຕ້ອງຮັບ-ຕ້ອງສົ່ງ",
+            "sname":"ລາຍງານໜີ້ຕ້ອງຮັບ-ຕ້ອງສົ່ງ",
+            "key": "debtreport",
+            "none": true,
+            "read": true,
+            "create": false,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ລາຍງານການຖອກເງິນປະຈຳວັນ",
+            "sname":"ລາຍງານການຖອກເງິນປະຈຳວັນ",
+            "key": "reportpayment",
+            "none": true,
+            "read": true,
+            "create": false,
+            "edit": false,
+            "delete": false
+        },
+        {
+            "name": "ລາຍງານເຄື່ອງບໍ່ເປີດຂາຍ",
+            "sname":"ລາຍງານເຄື່ອງບໍ່ເປີດຂາຍ",
+            "key": "reportmachine",
+            "none": true,
+            "read": true,
+            "create": false,
+            "edit": false,
+            "delete": false
+        }
+    ]
+}

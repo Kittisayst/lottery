@@ -2,51 +2,89 @@
 require_once ("./router/routes.php");
 require_once ("./controller/loginController.php"); // use start cookie
 require_once ("./router/startRoute.php");
+require_once "./database/StartPermission.php";
 
 // Start a new route
 $login = new LoginController();
+
 if ($login->isLogin()) {
+    $permission = new UsePermission($_COOKIE['user']);
+    // var_dump($permission->getPermission());
     include_once ("./views/Navbar.php");
+    //dashboard
     new Router('home', './views/Home.php', 'ລະບົບໂຮງຫວຍ');
-    new Router('unit', './views/Unit.php', "ໜ່ວຍແຕ່ລະແຂວງ");
-    new Router("dataUnit", './views/DataUnit.php', "ຂໍ້ມູນໜ່ວຍ");
-    new Router("financial", "./views/Financial.php", "ປ້ອນຂໍ້ມູນ");
-    new Router("inputFinancial", "./views/InputFinancial.php", "ປ້ອນຂໍ້ມູນ");
-    new Router("lottery", "./views/Lottery.php", "ຂໍ້ມູນເລກທີ");
-    new Router("user", "./views/User.php", "ຂໍ້ມູນຜູ້ໃຊ້ງານ");
-    new Router("province", "./views/Province.php", "ຂໍ້ມູນແຂວງ");
-    // formInput
+    new Router('unit', './views/Unit.php', "ໜ່ວຍແຕ່ລະແຂວງ Dashboard");
+    //==================== Management ========================
     //unit
+    $unit = $permission->getValue("dataUnit");
+    $permission->setView(1, $unit, './views/DataUnit.php', "ຂໍ້ມູນໜ່ວຍ");
     new Router("formUnit", "./views/form/unit_form.php", "ເພີ່ມຂໍ້ມູນໜ່ວຍ");
     new Router("editunit", "./views/form/edit_unit_form.php", "ແກ້ໄຂຂໍ້ມູນໜ່ວຍ");
-    new Router("lotmachine", "./views/SelectLotMachine.php", "ຈັດການລະຫັດຜູ້ຂາຍ");
-    // new Router("lotmachinelotlink", "./views/lotmachineLotlink.php", "ຈັດການລະຫັດຜູ້ຂາຍ Lot Link");
+    //lotmachine
+    $lotmachine = $permission->getValue("lotmachine");
+    $permission->setView(1, $lotmachine, './views/MainLotMachine.php', "ຈັດການລະຫັດຜູ້ຂາຍ");
+    //Province
+    $province = $permission->getValue("province");
+    $permission->setView(1, $province, './views/Province.php', "ຂໍ້ມູນແຂວງ");
     //user
+    $user = $permission->getValue("user");
+    $permission->setView(1, $user, "./views/User.php", "ຂໍ້ມູນຜູ້ໃຊ້ງານ");
     new Router("createuser", "./views/form/user_form.php", "ເພີ່ມຜູ້ໃຊ້ງານ");
     new Router("edituser", "./views/form/edit_user_form.php", "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານ");
+    //Permissions
+    $permiss = $permission->getValue("permission");
+    $permission->setView(1, $permiss, "./views/Permission.php", "ສິດທິການໃຊ້ງານ");
+    new Router("addpermission", "./views/AddPermission.php", "ກຳນົດສິດທິ");
+    new Router("updatePermission", "./views/UpdatePermission.php", "ແກ້ໄຂສິດທິ");
+    //====================== Lottery ============================
+    //lots
+    $lottery = $permission->getValue("lottery");
+    $permission->setView(1, $lottery, "./views/Lottery.php", "ຂໍ້ມູນເລກທີ");
     //select lottery
-    new Router("selectlot", "./views/selectLottery.php", "ປ້ອນຂໍ້ມູນງວດທີ");
+    $selectLot = $permission->getValue("selectlot");
+    $permission->setView(1, $selectLot, "./views/selectLottery.php", "ປ້ອນຂໍ້ມູນງວດທີ");
+    // financial
+    new Router("financial", "./views/Financial.php", "ປ້ອນຂໍ້ມູນ");
+    new Router("inputFinancial", "./views/InputFinancial.php", "ປ້ອນຂໍ້ມູນ");
     //Payment
-    new Router("payment", "./views/payment.php", "ເລືອກໜ່ວຍຖອກເງິນ");
+    $payment = $permission->getValue("payment");
+    $permission->setView(1, $payment, "./views/payment.php", "ເລືອກໜ່ວຍຖອກເງິນ");
     new Router("listpayment", "./views/listPayment.php", "ລາຍການຖອກເງິນ");
     new Router("history", "./views/HistoryPayment.php", "ປະຫວັດການຖອກເງິນ");
     //Read PDF
-    new Router("salepdf","./views/MainPDFSale.php", "ຂໍ້ມູນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
-    new Router("scanpdflottery","./views/ScanPDFlottery.php", "ອ່ານ PDF ບິນຖືກລາງວັນ");
-    new Router("readsalepdf","./views/MainScanSalePDF.php", "ອ່ານ PDF ຍອດຂາຍ");
-    new Router("scanpayment","./views/ScanPDF.php", "ອ່ານ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    $salePDF = $permission->getValue("salepdf");
+    $permission->setView(1, $salePDF, "./views/MainPDFSale.php", "ຂໍ້ມູນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    new Router("readsalepdf", "./views/MainScanSalePDF.php", "ອ່ານ PDF ຍອດຂາຍ");
+    new Router("scanpayment", "./views/MainScanPDF.php", "ອ່ານ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    //PDF Awards
+    $awardPDF = $permission->getValue("awardpdf");
+    $permission->setView(1, $salePDF, "./views/ScanPDFlottery.php", "ອ່ານ PDF ບິນຖືກລາງວັນ");
     //Print page
-    new Router("printsalepdf","./views/PrintSalePDF.php", "ປີ້ນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
-    new Router("printpdflottery","./views/PrintPDFLottery.php", "ອ່ານ PDF ຖືກລາງວັນ");
-    //Reports
-    new Router("reportfinancial", "./views/report/reportFinancial.php", "ລາຍງານການຂາຍ");
-    new Router("reportpayment", "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນປະຈຳວັນ");
-    new Router("reportsalepdf", "./views/report/reportSalePDF.php", "ລາຍງານ PDF ການຂາຍ");
-    new Router("reportmachine", "./views/report/reportMachine.php", "ລາຍງານເຄື່ອງທີ່ບໍ່ເປີດຂາຍ");
+    new Router("printsalepdf", "./views/PrintSalePDF.php", "ປີ້ນ PDF ຍອດຂາຍ ແລະ ຖືກລາງວັນ");
+    new Router("printpdflottery", "./views/PrintPDFLottery.php", "ອ່ານ PDF ຖືກລາງວັນ");
+    //============================== Debt =======================
     // Debt
-    new Router("debt", "./views/Debt.php", "ໃບແຈ້ງໜີ້/Invoice");
-    new Router("debtreport", "./views/report/Debt_report.php", "ລາຍງານໜີ້ຕ້ອງຮັບ-ຕ້ອງສົ່ງ");
-    new Router("financialhistory", "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");
+    $debt = $permission->getValue("debt");
+    $permission->setView(1, $debt, "./views/Debt.php", "ໃບແຈ້ງໜີ້/Invoice");
+
+    $financialhistory =$permission->getValue("financialhistory");
+    $permission->setView(1, $financialhistory, "./views/FinancialHistory.php", "ລາຍການປ້ອນຂໍ້ມູນແຕ່ລະງວດ");
+    //==================== Report ==============================
+    //Reports
+    $reportfinancial = $permission->getValue("reportfinancial");
+    $permission->setView(1, $reportfinancial, "./views/report/reportFinancial.php", "ລາຍງານການຂາຍ");
+
+    $reportDebt = $permission->getValue("debtreport");
+    $permission->setView(1, $reportfinancial, "./views/report/Debt_report.php", "ລາຍງານໜີ້ຕ້ອງຮັບ-ຕ້ອງສົ່ງ");
+
+    $reportpayment = $permission->getValue("reportpayment");
+    $permission->setView(1, $reportpayment, "./views/report/reportPayment.php", "ລາຍງານການຖອກເງິນປະຈຳວັນ");
+
+    $reportSalePDF = $permission->getValue("reportsalepdf");
+    $permission->setView(1, $reportSalePDF, "./views/report/reportSalePDF.php", "ລາຍງານ PDF ການຂາຍ");
+
+    $reportMachine = $reportSalePDF = $permission->getValue("reportmachine");
+    $permission->setView(1, $reportMachine, "./views/report/reportMachine.php", "ລາຍງານເຄື່ອງທີ່ບໍ່ເປີດຂາຍ");
     //footer
     require_once ("./views/Footer.php");
 } else {

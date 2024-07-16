@@ -6,7 +6,9 @@ class LoginController
     {
         if (!empty($_COOKIE['user'])) {
             $cookieValue = $_COOKIE['user'];
+            $lotValue = $_COOKIE['lot'];
             $expiration_time = time() + 3600;
+            setcookie("lot", $lotValue, $expiration_time, "/");
             setcookie("user", $cookieValue, $expiration_time, "/");
             return true;
         } else {

@@ -172,5 +172,5 @@
         return str;
     }
 
-    $("#alert_title").text($("#alert_title").text() + " (Lao lot)");
+    $("#alert_title").text($("#alert_title").text() + " (ລອດລີ້ງ)");
 </script>

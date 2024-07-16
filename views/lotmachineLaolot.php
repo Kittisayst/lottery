@@ -172,5 +172,5 @@
         return str;
     }
 
-    $("#alert_title").text($("#alert_title").text() + " (Lot Link)");
+    $("#alert_title").text($("#alert_title").text() + " (ລາວລອດ)"); 
 </script>
